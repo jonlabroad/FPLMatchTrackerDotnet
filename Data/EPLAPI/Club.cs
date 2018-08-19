@@ -1,7 +1,7 @@
 public class Club
 {
-    public int id;
-    public string name;
-    public int code;
-    public string short_name;
+    public int id { get; set; }
+    public string name { get; set; }
+    public int code { get; set; }
+    public string short_name { get; set; }
 }
