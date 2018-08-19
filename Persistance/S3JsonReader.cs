@@ -19,7 +19,7 @@ public class S3JsonReader : SimpleS3Provider {
             }
         }
         catch (Exception ex) {
-            Console.WriteLine(string.Format("Could not read %s\n", keyName));
+            Console.WriteLine(string.Format("Could not read {0}\n", keyName));
         }
         return default(T);
     }

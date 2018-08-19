@@ -8,8 +8,11 @@ namespace FPLMatchTrackerDotnet
         static void Main(string[] args)
         {
             var client = new EPLClient(new RequestExecutor());
-            var bootstrap = client.getBootstrap().Result;
-            Console.WriteLine(JsonConvert.SerializeObject(bootstrap));
+            //var bootstrap = client.getBootstrap().Result;
+            //Console.WriteLine(JsonConvert.SerializeObject(bootstrap));
+
+            var processor = new PlayerProcessor();
+            processor.process().Wait();
         }
     }
 }

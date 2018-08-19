@@ -31,7 +31,7 @@ public class VariableSubstitutor {
     }
 
     private static string Substitute(string inputString, string name, int value) {
-        string toReplace = string.Format("{%s}", name);
+        string toReplace = "{" + $"{name}" + "}";
         return inputString.Replace(toReplace, value.ToString());
     }
 }

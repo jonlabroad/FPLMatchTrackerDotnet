@@ -40,4 +40,20 @@ public class RequestExecutor : IRequestExecutor
             return default(T);
         }
     }
+
+        public async Task<string> Execute(IRestRequest request) {
+        try
+        {
+            Console.WriteLine(request.Resource);
+            var data = await _client.ExecuteTaskAsync(request);
+            if (_record) {
+                //_recorder.record(request.getUrl(), jsonResponse.getBody());
+            }
+            return data.Content;
+        }
+        catch (Exception ex) {
+            Console.WriteLine(ex);
+            return "";
+        }
+    }
 }

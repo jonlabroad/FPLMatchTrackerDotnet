@@ -5,7 +5,7 @@ using Amazon.S3;
 public class DeviceConfigurator
 {
     private static readonly string S3_CONFIG_DIR = "device_config";
-    private static readonly string S3_PATH_FMT = S3_CONFIG_DIR + "/%s";
+    private static readonly string S3_PATH_FMT = S3_CONFIG_DIR + "/{0}";
     private static readonly string S3_KEY_NAME = "device.config";
 
     private S3JsonWriter _writer = new S3JsonWriter();

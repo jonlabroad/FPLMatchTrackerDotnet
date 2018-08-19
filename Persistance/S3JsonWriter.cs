@@ -15,8 +15,11 @@ public class S3JsonWriter : SimpleS3Provider {
             BucketName = _bucketName,
             Key = key,
             ContentBody = toJson(obj),
-            CannedACL = pub ? S3CannedACL.PublicRead : S3CannedACL.NoACL
+            //CannedACL = pub ? S3CannedACL.PublicRead : S3CannedACL.AuthenticatedRead
         };
+        if (pub) {
+            request.CannedACL = S3CannedACL.PublicRead;
+        }
 
         var response = await _client.PutObjectAsync(request);
     }
