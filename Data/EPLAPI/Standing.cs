@@ -17,7 +17,18 @@ public class Standing
     public int points_against { get; set; }
     public int points_total { get; set; }
     public int division { get; set; }
-    public int? entry { get; set; }
+    private int _entry = 0;
+    public int? entry
+    {
+        get
+        {
+            return _entry;
+        }
+        set
+        {
+            _entry = value ?? 0;
+        }
+    }
 
     public Standing()
     {
