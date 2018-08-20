@@ -51,8 +51,7 @@ public class SinglePlayerProcessor
     }
 
     private static void addNewEvents(List<MatchEvent> diff, FootballerScoreDetailElement detailsDiff, Footballer footballer, FootballerScoreDetailElement currentDetail) {
-        PlayerEventGenerator generator = new PlayerEventGenerator();
-        List<MatchEvent> newEvents = generator.createNewEvents(detailsDiff, footballer, currentDetail);
+        List<MatchEvent> newEvents = PlayerEventGenerator.createNewEvents(detailsDiff, footballer, currentDetail);
         newEvents.ForEach(e => diff.Add(e));
     }
 

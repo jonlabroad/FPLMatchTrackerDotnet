@@ -23,7 +23,7 @@ public class PlayerProcessor
         _playerEnd = end;
     }
 
-    public async Task process() {
+    public async Task<ProcessedPlayerCollection> process() {
         try {
             // Get all the footballer data required
             var footballers = await getFootballers();
@@ -41,10 +41,12 @@ public class PlayerProcessor
                 playerCollection.players.Add(id, player);
             }
             await provider.writePlayers(playerCollection);
+            return playerCollection;
         }
         catch (Exception ex) {
             Console.WriteLine(ex);
         }
+        return await Task.FromResult((ProcessedPlayerCollection) null);
     }
 
     private ICollection<int> getFootballersToProcess(IDictionary<int, Footballer> footballers) {

@@ -1,24 +1,29 @@
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading;
 
 public class FootballerDataCache
 {
-    public IDictionary<int, Footballer> footballers = new Dictionary<int, Footballer>();
-    public IDictionary<int, FootballerDetails> footballerDetails = new Dictionary<int, FootballerDetails>();
-    public IDictionary<int, Live> liveData = new Dictionary<int, Live>();
-    //public IDictionary<int, EntryData> entries = new Dictionary<int, EntryData>();
-    //public IDictionary<int, TeamHistory> history = new Dictionary<int, TeamHistory>();
-    //public IDictionary<int, ProcessedLeagueFixtureList> leagueEntriesAndMatches = new Dictionary<int, ProcessedLeagueFixtureList>();
-    //public Standings standings = null;
-    //public BootstrapStatic bootstrapStatic = null;
+    public IDictionary<int, Footballer> footballers = new ConcurrentDictionary<int, Footballer>();
+    public IDictionary<int, FootballerDetails> footballerDetails = new ConcurrentDictionary<int, FootballerDetails>();
+    public IDictionary<int, Live> liveData = new ConcurrentDictionary<int, Live>();
+    public IDictionary<int, EntryData> entries = new ConcurrentDictionary<int, EntryData>();
+    public IDictionary<int, TeamHistory> history = new ConcurrentDictionary<int, TeamHistory>();
+    public IDictionary<int, ProcessedLeagueFixtureList> leagueEntriesAndMatches = new ConcurrentDictionary<int, ProcessedLeagueFixtureList>();
+    public Standings standings = null;
+    public BootstrapStatic bootstrapStatic = null;
+
+    public SemaphoreSlim bootstrapStaticLock = new SemaphoreSlim(1, 1);
+    public SemaphoreSlim bootstrapLock = new SemaphoreSlim(1, 1);
 
     public void clear() {
         footballers.Clear();
         footballerDetails.Clear();
-        //entries.Clear();
+        entries.Clear();
         liveData.Clear();
-        //leagueEntriesAndMatches = null;
-        //bootstrapStatic = null;
-        //standings = null;
+        leagueEntriesAndMatches = null;
+        bootstrapStatic = null;
+        standings = null;
     }
 
     public Footballer getFootballer(int id) {

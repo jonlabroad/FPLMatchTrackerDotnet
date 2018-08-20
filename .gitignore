@@ -2,3 +2,4 @@
 /obj/Debug/netcoreapp2.1
 /obj/FPLMatchTrackerDotnet.csproj.nuget.cache
 /obj
+/bin/release/netcoreapp2.1

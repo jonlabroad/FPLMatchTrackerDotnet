@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 
-public class PlayerEventGenerator
+public static class PlayerEventGenerator
 {
-    public List<MatchEvent> createNewEvents(FootballerScoreDetailElement detailsDiff, Footballer footballer, FootballerScoreDetailElement currentDetail)
+    public static List<MatchEvent> createNewEvents(FootballerScoreDetailElement detailsDiff, Footballer footballer, FootballerScoreDetailElement currentDetail)
     {
         var events = new List<MatchEvent>();
         DateTime time = DateTime.Now;
@@ -69,7 +69,7 @@ public class PlayerEventGenerator
         return Date.toString(time);
     }
 
-    private void printMatchEvents(List<MatchEvent> events) {
+    private static void printMatchEvents(List<MatchEvent> events) {
         foreach (MatchEvent ev in events) {
             Console.WriteLine(string.Format("{0} {1} {2} {3}", ev.number, ev.typeString, ev.footballerName, ev.pointDifference));
         }
