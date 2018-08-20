@@ -25,6 +25,9 @@ namespace FPLMatchTrackerDotnet
             var teamsToProcess = teamsToProcessTask.Result;
             var teamProcessor = new TeamProcessor(client, teamsToProcess, GlobalConfig.CloudAppConfig.CurrentGameWeek);
             var teams = teamProcessor.process().Result;
+            estimateAverageScore(teams);
+
+            var leagueProcessorTask = new LeagueProcessor(teams.Values, leagueId, GlobalConfig.CloudAppConfig.CurrentGameWeek).process();
 
             var matches = matchTask.Result;
             var matchInfos = new List<MatchInfo>();
@@ -53,9 +56,28 @@ namespace FPLMatchTrackerDotnet
                     }
                 }
             }).Wait();
+            leagueProcessorTask.Wait();
             stopWatch.Stop();
             Console.Write($"All processing took {stopWatch.Elapsed.TotalSeconds} sec");
             
+        }
+
+        private static void estimateAverageScore(IDictionary<int, ProcessedTeam> teams)
+        {
+            ProcessedTeam average = null;
+            average = teams.TryGetValue(0, out average) ? average : null;
+            if (average != null) {
+                int totalScore = 0;
+                int numAvgd = 0;
+                foreach (ProcessedTeam team in teams.Values) {
+                    if (team.id != 0) {
+                        totalScore += team.score.startingScore + team.transferCost;
+                        numAvgd++;
+                    }
+                }
+                int avgScore = totalScore/numAvgd;
+                average.score.startingScore = avgScore;
+            }
         }
     }
 }
