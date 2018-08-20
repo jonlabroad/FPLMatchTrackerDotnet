@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 
 public class CloudAppConfig {
-    public int CurrentGameWeek = 1;
-    public string day = null;
-    public bool finalPollOfDayCompleted = false;
-    public IDictionary<int, TeamIdName> AvailableTeams = new Dictionary<int, TeamIdName>();
+    public int CurrentGameWeek {get; set;} = 1;
+    public string day {get; set;} = null;
+    public bool finalPollOfDayCompleted {get; set;}  = false;
+    public IDictionary<int, TeamIdName> AvailableTeams {get; set;} = new Dictionary<int, TeamIdName>();
 }

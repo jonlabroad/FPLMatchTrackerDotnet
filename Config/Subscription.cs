@@ -1,5 +1,5 @@
 using System.Collections.Generic;
 
 public class Subscription {
-    public IDictionary<int, TeamSubscription> teamsByTeamId = new Dictionary<int, TeamSubscription>();
+    public IDictionary<int, TeamSubscription> teamsByTeamId {get; set;} = new Dictionary<int, TeamSubscription>();
 }

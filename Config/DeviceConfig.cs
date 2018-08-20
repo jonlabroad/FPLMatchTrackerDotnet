@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 
 public class DeviceConfig {
-    public string uniqueDeviceId;
-    public Subscription subscriptions = new Subscription();
+    public string uniqueDeviceId {get; set;}
+    public Subscription subscriptions {get; set;} = new Subscription();
 
     public DeviceConfig(string uId) {
         uniqueDeviceId = uId;

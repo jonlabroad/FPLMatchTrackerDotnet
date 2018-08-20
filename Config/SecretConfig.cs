@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 
 public class SecretConfig {
-    public IDictionary<int, User> users = new Dictionary<int, User>();
-    public string platformApplicationArn = "";
-    public string googleApiKey = "";
+    public IDictionary<int, User> users {get; set;} = new Dictionary<int, User>();
+    public string platformApplicationArn {get; set;} = "";
+    public string googleApiKey {get; set;} = "";
 
     public void AddUser(int teamId, string teamName, string phoneNumber) {
         User user = new User();
