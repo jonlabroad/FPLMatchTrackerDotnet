@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -12,17 +13,18 @@ namespace FPLMatchTrackerDotnet
         {
             var stopWatch = new Stopwatch();
             stopWatch.Start();
-
             var leagueId = 5815;
 
             var client = new EPLClient(new RequestExecutor());
-            var teamsToProcessTask = client.getTeamsInLeague(leagueId);
+            var preloadTask = PreloadCache(client);
+
+            var teamsToProcess = client.getTeamsInLeague(leagueId).Result;
+            var preloadEntryTask = PreloadEntryCache(client, teamsToProcess, GlobalConfig.CloudAppConfig.CurrentGameWeek);
 
             var matchTask = client.findMatches(leagueId, GlobalConfig.CloudAppConfig.CurrentGameWeek);
             var playerProcessor = new PlayerProcessor(client);
             var processedPlayers = playerProcessor.process().Result;
 
-            var teamsToProcess = teamsToProcessTask.Result;
             var teamProcessor = new TeamProcessor(client, teamsToProcess, GlobalConfig.CloudAppConfig.CurrentGameWeek);
             var teams = teamProcessor.process().Result;
             estimateAverageScore(teams);
@@ -57,6 +59,8 @@ namespace FPLMatchTrackerDotnet
                 }
             }).Wait();
             leagueProcessorTask.Wait();
+            preloadTask.Wait();
+            preloadEntryTask.Wait();
             stopWatch.Stop();
             Console.Write($"All processing took {stopWatch.Elapsed.TotalSeconds} sec");
             
@@ -78,6 +82,21 @@ namespace FPLMatchTrackerDotnet
                 int avgScore = totalScore/numAvgd;
                 average.score.startingScore = avgScore;
             }
+        }
+
+        private static async Task PreloadCache(EPLClient client)
+        {
+            var tasks = new List<Task>();
+            tasks.Add(client.getFootballers());
+            tasks.Add(client.getBootstrapStatic());
+            await Task.WhenAll(tasks);
+        }
+        
+        private static async Task PreloadEntryCache(EPLClient client, ICollection<int> teamIds, int gameweek)
+        {   
+            var tasks = teamIds.Select(async id => await client.getEntry(id)).ToList();
+            await Task.WhenAll(teamIds.Select(async id => await client.getPicks(id, gameweek)).ToList());
+            await Task.WhenAll(tasks);
         }
     }
 }
