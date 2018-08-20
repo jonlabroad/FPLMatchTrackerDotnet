@@ -17,11 +17,8 @@ public class FootballerDataCache
     public SemaphoreSlim bootstrapStaticLock = new SemaphoreSlim(1, 1);
     public SemaphoreSlim bootstrapLock = new SemaphoreSlim(1, 1);
     public SemaphoreSlim liveDataLock = new SemaphoreSlim(1, 1);
-    public SemaphoreSlim entriesLock = new SemaphoreSlim(1, 1);
-    public SemaphoreSlim historyLock = new SemaphoreSlim(1, 1);
     public SemaphoreSlim leagueEntriesLock = new SemaphoreSlim(1, 1);
     public SemaphoreSlim standingsLock = new SemaphoreSlim(1, 1);
-    public SemaphoreSlim picksLock = new SemaphoreSlim(1, 1);
 
     public void clear() {
         footballers.Clear();

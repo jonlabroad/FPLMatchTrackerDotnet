@@ -79,13 +79,11 @@ public class EPLClient
         var key = $"{teamId}_{eventId}";
         if (!_footballerCache.picks.ContainsKey(key))
         {
-            await _footballerCache.picksLock.WaitAsync();
             if (!_footballerCache.picks.ContainsKey(key))
             {
                 var picks = await readPicks(teamId, eventId);
                 _footballerCache.picks[key] = picks;
             }
-            _footballerCache.picksLock.Release();
         }
         return _footballerCache.picks[key];
     }
@@ -122,13 +120,8 @@ public class EPLClient
     {
         if (!_footballerCache.entries.ContainsKey(teamId))
         {
-            await _footballerCache.entriesLock.WaitAsync();
-            if (!_footballerCache.entries.ContainsKey(teamId))
-            {
-                EntryData data = await readEntry(teamId);
-                _footballerCache.entries[teamId] = data;
-            }
-            _footballerCache.entriesLock.Release();
+            EntryData data = await readEntry(teamId);
+            _footballerCache.entries[teamId] = data;
         }
         return _footballerCache.entries[teamId];
     }
@@ -173,13 +166,8 @@ public class EPLClient
     public async Task<TeamHistory> getHistory(int teamId) {
         if (!_footballerCache.history.ContainsKey(teamId))
         {
-            await _footballerCache.historyLock.WaitAsync();
-            if (!_footballerCache.history.ContainsKey(teamId))
-            {
-                TeamHistory data = await readHistory(teamId);
-                _footballerCache.history.Add(teamId, data);
-            }
-            _footballerCache.historyLock.Release();
+            TeamHistory data = await readHistory(teamId);
+            _footballerCache.history.Add(teamId, data);
         }
         return _footballerCache.history[teamId];
     }
