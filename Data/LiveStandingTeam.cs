@@ -2,11 +2,11 @@ using System;
 
 public class LiveStandingTeam : IComparable
 {
-    string teamName {get; set;}
-    int teamId {get; set;}
-    Standing standing {get; set;}
-    string liveResult {get; set;}
-    Score currentWeekScore {get; set;} = new Score();
+    public string teamName {get; set;}
+    public int teamId {get; set;}
+    public Standing standing {get; set;}
+    public string liveResult {get; set;}
+    public Score currentWeekScore {get; set;} = new Score();
 
     public LiveStandingTeam(ProcessedTeam team, ProcessedTeam otherTeam, Standings standings)
     {

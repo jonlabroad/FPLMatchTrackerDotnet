@@ -52,9 +52,15 @@ public class EPLClient
     }
 
     public async Task<Live> getLiveData(int eventId) {
-        if (!_footballerCache.liveData.ContainsKey(eventId)) {
-            Live data = await readLiveEventData(eventId);
-            _footballerCache.liveData.Add(eventId, data);
+        if (!_footballerCache.liveData.ContainsKey(eventId))
+        {
+            await _footballerCache.liveDataLock.WaitAsync();
+            if (!_footballerCache.liveData.ContainsKey(eventId))
+            {
+                Live data = await readLiveEventData(eventId);
+                _footballerCache.liveData.Add(eventId, data);
+            }
+            _footballerCache.liveDataLock.Release();
         }
         return _footballerCache.liveData[eventId];
     }
@@ -70,6 +76,22 @@ public class EPLClient
     }
 
     public async Task<Picks> getPicks(int teamId, int eventId) {
+        var key = $"{teamId}_{eventId}";
+        if (!_footballerCache.picks.ContainsKey(key))
+        {
+            await _footballerCache.picksLock.WaitAsync();
+            if (!_footballerCache.picks.ContainsKey(key))
+            {
+                var picks = await readPicks(teamId, eventId);
+                _footballerCache.picks[key] = picks;
+            }
+            _footballerCache.picksLock.Release();
+        }
+        return _footballerCache.picks[key];
+    }
+
+    private async Task<Picks> readPicks(int teamId, int eventId)
+    {
         var request = _generator.GeneratePicksRequest(teamId, eventId);
         try {
             return await _executor.Execute<Picks>(request);
@@ -96,20 +118,22 @@ public class EPLClient
         return _footballerCache.bootstrapStatic;
     }
 
-    public async Task<EntryData> getEntry(int teamId) {
-        if (!_footballerCache.entries.ContainsKey(teamId)) {
-            EntryData data = await readEntry(teamId);
-            _footballerCache.entries[teamId] = data;
+    public async Task<EntryData> getEntry(int teamId)
+    {
+        if (!_footballerCache.entries.ContainsKey(teamId))
+        {
+            await _footballerCache.entriesLock.WaitAsync();
+            if (!_footballerCache.entries.ContainsKey(teamId))
+            {
+                EntryData data = await readEntry(teamId);
+                _footballerCache.entries[teamId] = data;
+            }
+            _footballerCache.entriesLock.Release();
         }
-        try {
-            return _footballerCache.entries[teamId];
-        }
-        catch (Exception ex) {
-            throw ex;
-        }
+        return _footballerCache.entries[teamId];
     }
 
-    public async Task<EntryData> readEntry(int teamId) {
+    private async Task<EntryData> readEntry(int teamId) {
         if (teamId > 0) {
             var request = _generator.GenerateEntryRequest(teamId);
             EntryData data = await _executor.Execute<EntryData>(request);
@@ -120,14 +144,20 @@ public class EPLClient
     }
 
     public async Task<Standings> getStandings(int leagueId) {
-        if (_footballerCache.standings == null) {
+        if (_footballerCache.standings == null)
+        {
+            await _footballerCache.standingsLock.WaitAsync();
+        if (_footballerCache.standings == null)
+        {
             Standings standings = await readStandings(leagueId);
             _footballerCache.standings = standings;
+        }
+        _footballerCache.standingsLock.Release();
         }
         return _footballerCache.standings;
     }
 
-    public async Task<Standings> readStandings(int leagueId) {
+    private async Task<Standings> readStandings(int leagueId) {
         var request = _generator.GenerateLeagueH2hStandingsRequest(leagueId);
         try {
             var standingsString = await _executor.Execute(request);
@@ -141,14 +171,20 @@ public class EPLClient
     }
 
     public async Task<TeamHistory> getHistory(int teamId) {
-        if (!_footballerCache.history.ContainsKey(teamId)) {
-            TeamHistory data = await readHistory(teamId);
-            _footballerCache.history.Add(teamId, data);
+        if (!_footballerCache.history.ContainsKey(teamId))
+        {
+            await _footballerCache.historyLock.WaitAsync();
+            if (!_footballerCache.history.ContainsKey(teamId))
+            {
+                TeamHistory data = await readHistory(teamId);
+                _footballerCache.history.Add(teamId, data);
+            }
+            _footballerCache.historyLock.Release();
         }
         return _footballerCache.history[teamId];
     }
 
-    public async Task<TeamHistory> readHistory(int teamId) {
+    private async Task<TeamHistory> readHistory(int teamId) {
         if (teamId == 0) {
             return null;
         }
@@ -166,10 +202,17 @@ public class EPLClient
         return matchesInfo.matches[gameweek];
     }
 
-    public async Task<ProcessedLeagueFixtureList> getLeagueEntriesAndMatches(int leagueId) {
-        if (!_footballerCache.leagueEntriesAndMatches.ContainsKey(leagueId)) {
-            ProcessedLeagueFixtureList data = await readLeagueH2hMatches(leagueId);
-            _footballerCache.leagueEntriesAndMatches.Add(leagueId, data);
+    public async Task<ProcessedLeagueFixtureList> getLeagueEntriesAndMatches(int leagueId)
+    {
+        if (!_footballerCache.leagueEntriesAndMatches.ContainsKey(leagueId))
+        {
+            await _footballerCache.leagueEntriesLock.WaitAsync();
+            if (!_footballerCache.leagueEntriesAndMatches.ContainsKey(leagueId))
+            {
+                ProcessedLeagueFixtureList data = await readLeagueH2hMatches(leagueId);
+                _footballerCache.leagueEntriesAndMatches.Add(leagueId, data);
+            }
+            _footballerCache.leagueEntriesLock.Release();
         }
         return _footballerCache.leagueEntriesAndMatches[leagueId];
     }

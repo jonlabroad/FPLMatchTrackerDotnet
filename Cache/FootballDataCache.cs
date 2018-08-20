@@ -9,12 +9,19 @@ public class FootballerDataCache
     public IDictionary<int, Live> liveData = new ConcurrentDictionary<int, Live>();
     public IDictionary<int, EntryData> entries = new ConcurrentDictionary<int, EntryData>();
     public IDictionary<int, TeamHistory> history = new ConcurrentDictionary<int, TeamHistory>();
+    public IDictionary<string, Picks> picks = new ConcurrentDictionary<string, Picks>();
     public IDictionary<int, ProcessedLeagueFixtureList> leagueEntriesAndMatches = new ConcurrentDictionary<int, ProcessedLeagueFixtureList>();
     public Standings standings = null;
     public BootstrapStatic bootstrapStatic = null;
 
     public SemaphoreSlim bootstrapStaticLock = new SemaphoreSlim(1, 1);
     public SemaphoreSlim bootstrapLock = new SemaphoreSlim(1, 1);
+    public SemaphoreSlim liveDataLock = new SemaphoreSlim(1, 1);
+    public SemaphoreSlim entriesLock = new SemaphoreSlim(1, 1);
+    public SemaphoreSlim historyLock = new SemaphoreSlim(1, 1);
+    public SemaphoreSlim leagueEntriesLock = new SemaphoreSlim(1, 1);
+    public SemaphoreSlim standingsLock = new SemaphoreSlim(1, 1);
+    public SemaphoreSlim picksLock = new SemaphoreSlim(1, 1);
 
     public void clear() {
         footballers.Clear();

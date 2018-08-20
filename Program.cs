@@ -40,13 +40,11 @@ namespace FPLMatchTrackerDotnet
                 if (leagueId > 0) {
                     // Gross
                     if (true) {
-                        //LiveStandings liveStandings = new LiveStandings(matchInfos, await client.getStandings(leagueId));
-                        //if (liveStandings != null) {
-                        //    liveStandings.liveStandings.Sort();
-                        //}
+                        var liveStandings = new LiveStandings(matchInfos, await client.getStandings(leagueId));
+                        liveStandings?.liveStandings?.Sort();
                         foreach (var matchInfo in matchInfos) {
                             try {
-                                //matchInfo.liveStandings = liveStandings;
+                                matchInfo.liveStandings = liveStandings;
                             } finally {
                                 writeTasks.Add(MatchProcessor.writeMatchInfo(leagueId, matchInfo));
                             }
