@@ -17,10 +17,31 @@ namespace FPLMatchTrackerDotnet
             var leagueId = 5815;
 
             var client = new EPLClient(new RequestExecutor());
-            var preloadTask = PreloadCache(client);
+            var cachePreloader = new CachePreloader(client);
+            var preloadTask = cachePreloader.PreloadCache();
+
+            // Processing only performed if this is running on-premise
+            var highlightProcessor = new HighlightProcessor(GlobalConfig.CloudAppConfig.CurrentGameWeek, leagueId);
+            var highlightTask = highlightProcessor.process();
+
+            if (!IsTimeToPoll(client).Result) {
+                Console.WriteLine("It's not time yet! Quiting...");
+                highlightTask.Wait();
+                return;
+            }
+
+            var start = DateTime.Now;
+            var configUpdater = new CloudConfigUpdater(client);
+            var generateScoutingReports = false;
+            if (configUpdater.update().Result) {
+                generateScoutingReports = true;
+            }
+
+            var eventProcessor = new EventProcessor(client, GlobalConfig.CloudAppConfig.CurrentGameWeek);
+            var eventProcessorTask = eventProcessor.process();
 
             var teamsToProcess = client.getTeamsInLeague(leagueId).Result;
-            var preloadEntryTask = PreloadEntryCache(client, teamsToProcess, GlobalConfig.CloudAppConfig.CurrentGameWeek);
+            var preloadEntryTask = cachePreloader.PreloadEntryCache(teamsToProcess, GlobalConfig.CloudAppConfig.CurrentGameWeek);
 
             var matchTask = client.findMatches(leagueId, GlobalConfig.CloudAppConfig.CurrentGameWeek);
             Console.WriteLine("Starting Player Processors");
@@ -31,7 +52,7 @@ namespace FPLMatchTrackerDotnet
             Console.WriteLine("Starting team Processors");
             var teamProcessor = new TeamProcessor(client, teamsToProcess, GlobalConfig.CloudAppConfig.CurrentGameWeek);
             var teams = teamProcessor.process().Result;
-            estimateAverageScore(teams);
+            ScoreCalculator.EstimateAverageScore(teams);
             Console.WriteLine("Team Processing Complete");
 
             var leagueProcessorTask = new LeagueProcessor(teams.Values, leagueId, GlobalConfig.CloudAppConfig.CurrentGameWeek).process();
@@ -75,43 +96,38 @@ namespace FPLMatchTrackerDotnet
             leagueProcessorTask.Wait();
             preloadTask.Wait();
             preloadEntryTask.Wait();
+            highlightTask.Wait();
             stopWatch.Stop();
             Console.Write($"All processing took {stopWatch.Elapsed.TotalSeconds} sec");
             
         }
 
-        private static void estimateAverageScore(IDictionary<int, ProcessedTeam> teams)
+        private static async Task<bool> IsTimeToPoll(EPLClient client)
         {
-            ProcessedTeam average = null;
-            average = teams.TryGetValue(0, out average) ? average : null;
-            if (average != null) {
-                int totalScore = 0;
-                int numAvgd = 0;
-                foreach (ProcessedTeam team in teams.Values) {
-                    if (team.id != 0) {
-                        totalScore += team.score.startingScore + team.transferCost;
-                        numAvgd++;
-                    }
-                }
-                int avgScore = totalScore/numAvgd;
-                average.score.startingScore = avgScore;
-            }
-        }
+            var eventFinder = new EventFinder(client);
+            var currentTime = DateTime.Now;
+            var ev = await eventFinder.GetCurrentEvent();
+            var eventStart = eventFinder.GetEventStartTime(ev);
+            Console.WriteLine(string.Format("Start date: {0}\n", eventStart.ToString()));
+            Console.WriteLine(string.Format("Current date: {0}\n", currentTime.ToString()));
+            Console.WriteLine(string.Format("Finished: {0}\n", ev.finished));
+            Console.WriteLine(string.Format("Data checked: {0}\n", ev.data_checked));
 
-        private static async Task PreloadCache(EPLClient client)
-        {
-            var tasks = new List<Task>();
-            tasks.Add(client.getFootballers());
-            tasks.Add(client.getBootstrapStatic());
-            await Task.WhenAll(tasks);
-        }
-        
-        private static async Task PreloadEntryCache(EPLClient client, ICollection<int> teamIds, int gameweek)
-        {   
-            var tasks = teamIds.Select(async id => await client.getEntry(id)).ToList();
-            await Task.WhenAll(teamIds.Select(async id => await client.getPicks(id, gameweek)).ToList());
-            await Task.WhenAll(teamIds.Select(async id => await client.getHistory(id)).ToList());
-            await Task.WhenAll(tasks);
+            var lastConfigTimestamp = Date.fromString(GlobalConfig.CloudAppConfig.day);
+            if (string.IsNullOrEmpty(GlobalConfig.CloudAppConfig.day) || lastConfigTimestamp.Day != currentTime.Day) {
+                Console.WriteLine("It's a new day!");
+                GlobalConfig.CloudAppConfig.finalPollOfDayCompleted = false;
+                GlobalConfig.CloudAppConfig.day = Date.toString(currentTime);
+                await new CloudAppConfigProvider().write(GlobalConfig.CloudAppConfig);
+            }
+
+            var fixtureTimer = new EventTimer(client);
+            if (!await fixtureTimer.IsFixtureTime(ev)) {
+                Console.WriteLine("No fixtures are currently on");
+                return false;
+            }
+
+            return true;
         }
     }
 }

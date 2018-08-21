@@ -181,6 +181,17 @@ public class EPLClient
         return data;
     }
 
+    public async Task<List<Club>> getClubs() {
+        var clubs = new List<Club>();
+        var request = _generator.GenerateFootballersRequest();
+        var bootstrap = await _executor.Execute<Bootstrap>(request);
+        foreach (var club in bootstrap.teams)
+        {
+            clubs.Add(club);
+        }
+        return clubs;
+    }
+
     public async Task<ICollection<Match>> findMatches(int leagueId, int gameweek) {
         ProcessedLeagueFixtureList matchesInfo = await getLeagueEntriesAndMatches(leagueId);
         if (matchesInfo == null)

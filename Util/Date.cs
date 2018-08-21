@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.Serialization;
 
 public class Date
 {
@@ -10,10 +11,14 @@ public class Date
     }
 
     public static DateTime fromString(string dateString) {
-        return DateTime.Parse(dateString);
+        var date = DateTime.ParseExact(dateString.Replace(" EDT", "").Replace(" EST",""), "yyyy-MM-dd HH:mm:ss", null);
+        return TimeZoneInfo.ConvertTime(date, TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time"));
     }
 
     public static DateTime fromApiString(string dateString) {
-        return DateTime.Parse(dateString);
+        var dateTime = DateTime.Parse(dateString);
+        //var estDateTime = TimeZoneInfo.ConvertTime(dateTime, TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time"));
+        return dateTime;
+        //TimeZoneInfo.ConvertTime(dateTime, TimeZoneInfo.FindSystemTimeZoneById("Central Europe Standard"));
     }
 }
