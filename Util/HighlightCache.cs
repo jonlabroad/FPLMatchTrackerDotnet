@@ -27,8 +27,12 @@ public class HighlightCache
     private async Task writeNewItems(PlaylistItem[] newItems) {
         String json = JsonConvert.SerializeObject(newItems);
         try {
-            var file = new StreamWriter(getFilepath());
-            Directory.CreateDirectory(Directory.GetCurrentDirectory() + "/cache");
+            var filePath = getFilepath();
+            Console.WriteLine("Highlight cache path: " + filePath);
+            var file = new StreamWriter(filePath);
+            var dirToCreate = Directory.GetCurrentDirectory() + "/cache";
+            Console.WriteLine("Attempting to create " + dirToCreate);
+            Directory.CreateDirectory(dirToCreate);
             await file.WriteAsync(json);
             file.Close();
         } catch (Exception e) {
