@@ -16,7 +16,7 @@ public class GlobalConfig {
     // Highlights
     public static string YoutubeChannelId = "UCqZQlzSHbVJrwrn5XvzrzcA";
 
-    public static readonly string SeasonPath = "Season2018DotNet";
+    public static readonly string SeasonPath = "Season2018";
     public static readonly string DataRoot = "data/" + SeasonPath;
     public static string MatchInfoRoot = DataRoot;
 

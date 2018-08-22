@@ -28,9 +28,7 @@ public class HighlightCache
         String json = JsonConvert.SerializeObject(newItems);
         try {
             var filePath = getFilepath();
-            Console.WriteLine("Highlight cache path: " + filePath);
             var dirToCreate = Directory.GetCurrentDirectory() + "/cache";
-            Console.WriteLine("Attempting to create " + dirToCreate);
             Directory.CreateDirectory(dirToCreate);
             var file = new StreamWriter(filePath);
             await file.WriteAsync(json);
