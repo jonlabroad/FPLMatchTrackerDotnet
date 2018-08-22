@@ -26,7 +26,7 @@ namespace FPLMatchTrackerDotnet
 
             var dailyProcessorTask = new DailyProcessor(leagueId, client).Process();
 
-            if (false && !IsTimeToPoll(client).Result) {
+            if (!IsTimeToPoll(client).Result) {
                 Console.WriteLine("It's not time yet! Quiting...");
                 highlightTask.Wait();
                 dailyProcessorTask.Wait();
@@ -34,12 +34,6 @@ namespace FPLMatchTrackerDotnet
             }
 
             var start = DateTime.Now;
-            var configUpdater = new CloudConfigUpdater(client);
-            var generateScoutingReports = false;
-            if (configUpdater.update().Result) {
-                generateScoutingReports = true;
-            }
-
             var eventProcessor = new EventProcessor(client, GlobalConfig.CloudAppConfig.CurrentGameWeek);
             var eventProcessorTask = eventProcessor.process();
 
@@ -47,14 +41,6 @@ namespace FPLMatchTrackerDotnet
             var matchProcessingTasks = allMatchProcessor.Process();
 
             Task scoutingTask = null;
-            if (generateScoutingReports)
-            {
-                scoutingTask = Task.Run(async () => {
-                    var scoutingProcessor = new ScoutingProcessor(leagueId, client, await allMatchProcessor.GetProcessedTeams());
-                    await scoutingProcessor.Process();
-                });
-            }
-
             var writeTasks = new List<Task>();
             Task.Run(async () =>
             {

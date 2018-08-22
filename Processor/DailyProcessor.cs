@@ -9,6 +9,8 @@ public class DailyProcessor
 
     public DailyProcessor(int leagueId, EPLClient client)
     {
+        _leagueId = leagueId;
+        _client = client;
     }
 
     public async Task Process()
@@ -21,7 +23,7 @@ public class DailyProcessor
 
         await UpdateCloudAppConfig();
         var allMatchProcessor = new AllMatchProcessor(_client, _leagueId);
-
+        await allMatchProcessor.Process();
         await new ScoutingProcessor(_leagueId, _client, await allMatchProcessor.GetProcessedTeams()).Process();
     }
 

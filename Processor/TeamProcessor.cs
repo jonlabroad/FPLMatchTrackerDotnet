@@ -29,7 +29,7 @@ public class TeamProcessor
 
         var processedTeams = new Dictionary<int, ProcessedTeam>();
         foreach (var task in tasks) {
-            var team = task.Result;
+            var team = await task;
             processedTeams.Add(team.id, team);
         }
         return processedTeams;

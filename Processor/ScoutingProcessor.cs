@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 
 public class ScoutingProcessor
@@ -9,12 +11,15 @@ public class ScoutingProcessor
     int _leagueId;
     EPLClient _client = null;
 
-    public ScoutingProcessor(int leagueId, EPLClient client, IDictionary<int, ProcessedTeam> teams) {
+    public ScoutingProcessor(int leagueId, EPLClient client, IDictionary<int, ProcessedTeam> teams)
+    {
         initialize(leagueId, client, teams);
     }
 
-    protected void initialize(int leagueId, EPLClient client, IDictionary<int, ProcessedTeam> teams) {
-        if (client == null) {
+    protected void initialize(int leagueId, EPLClient client, IDictionary<int, ProcessedTeam> teams)
+    {
+        if (client == null)
+        {
             client = EPLClientFactory.createClient();
         }
         _client = client;
@@ -22,36 +27,46 @@ public class ScoutingProcessor
         _leagueId = leagueId;
     }
 
-    public async Task<IDictionary<int, ScoutingReport>> Process() {
-        IDictionary<int, ScoutingReport> reports = new Dictionary<int, ScoutingReport>();
+    public async Task Process()
+    {
+        var stopWatch = new Stopwatch();
+        stopWatch.Start();
         Standings standings = await _client.getStandings(_leagueId);
-        for (int gameweek = GlobalConfig.CloudAppConfig.CurrentGameWeek; gameweek <= 38; gameweek++) {
-            foreach (ProcessedTeam team in _teams.Values) {
-                if (_processedTeams.Contains(team.id)) {
-                    Console.WriteLine(string.Format("Team scouting report already processed (gw={0}): {1}\n", gameweek, team.id));
+        var allTasks = new List<Task>();
+        for (int gameweek = GlobalConfig.CloudAppConfig.CurrentGameWeek; gameweek <= 38; gameweek++)
+        {
+            var matches = await _client.findMatches(_leagueId, gameweek);
+            foreach (ProcessedTeam team in _teams.Values)
+            {
+                if (_processedTeams.Contains(team.id))
+                {
                     continue;
                 }
 
-                ScoutingReport report = new ScoutingReport();
-                report.gameweek = gameweek;
-                await findMatch(team.id, report, gameweek);
-
-                processTeams(_teams, report.match, report, standings);
-
-                findDifferential(report);
-                generateStats(report);
-                await simulateH2h(report);
-                await writeReports(report, gameweek);
-
-                reports[report.match.entry_1_entry] = report;
-                reports[report.match.entry_2_entry] = report;
-                _processedTeams.Add(report.match.entry_1_entry);
-                _processedTeams.Add(report.match.entry_2_entry);
+                var match = findMatch(team.id, matches);
+                allTasks.Add(ProcessMatch(gameweek, match, standings));
+                _processedTeams.Add(match.entry_1_entry);
+                _processedTeams.Add(match.entry_2_entry);
             }
             _processedTeams.Clear();
         }
+        await Task.WhenAll(allTasks);
+        stopWatch.Stop();
+        Console.WriteLine($"Scouting processor complete {stopWatch.Elapsed.TotalSeconds} sec");
+    }
 
-        return reports;
+    private async Task ProcessMatch(int gameweek, Match match, Standings standings)
+    {
+        ScoutingReport report = new ScoutingReport();
+        report.gameweek = gameweek;
+
+        report.match = match;
+        processTeams(_teams, report.match, report, standings);
+        findDifferential(report);
+        generateStats(report);
+        await simulateH2h(report);
+        await writeReports(report, gameweek);
+        Console.WriteLine($"Scouting GW {gameweek} Match {match.entry_1_entry} vs {match.entry_2_entry} complete");
     }
 
     private void generateStats(ScoutingReport report)
@@ -60,11 +75,14 @@ public class ScoutingProcessor
         {
             addBestPlayer(team, report);
             addInformPlayer(team, report);
+            addDangerousPlayer(team, report);
         }
     }
 
-    private TeamStats getStats(ProcessedTeam team, ScoutingReport report) {
-        if (!report.stats.ContainsKey(team.id)) {
+    private TeamStats getStats(ProcessedTeam team, ScoutingReport report)
+    {
+        if (!report.stats.ContainsKey(team.id))
+        {
             report.stats.Add(team.id, new TeamStats());
         }
         return report.stats[team.id];
@@ -83,6 +101,13 @@ public class ScoutingProcessor
         TeamStats stats = getStats(team, report);
         stats.informPlayer = player;
     }
+    
+    private void addDangerousPlayer(ProcessedTeam team, ScoutingReport report)
+    {
+        ProcessedPlayer player = findDangerousPlayer(team);
+        TeamStats stats = getStats(team, report);
+        stats.dangerousPlayer = player;
+    }
 
     private ProcessedPlayer findBestPlayer(ProcessedTeam team)
     {
@@ -90,14 +115,17 @@ public class ScoutingProcessor
         ProcessedPlayer bestPlayer = null;
         foreach (var pick in team.picks)
         {
-            try {
+            try
+            {
                 double pointsPerGame = Double.Parse(pick.footballer.rawData.footballer.points_per_game);
-                if (pointsPerGame > 0.0 && pointsPerGame > maxPts) {
+                if (pointsPerGame > 0.0 && pointsPerGame > maxPts)
+                {
                     maxPts = pointsPerGame;
                     bestPlayer = pick.footballer;
                 }
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 Console.WriteLine(ex);
             }
         }
@@ -110,55 +138,62 @@ public class ScoutingProcessor
         ProcessedPlayer bestPlayer = null;
         foreach (var pick in team.picks)
         {
-            try {
+            try
+            {
                 double form = Double.Parse(pick.footballer.rawData.footballer.form);
-                if (form > 0.0 && form > maxPts) {
+                if (form > 0.0 && form > maxPts)
+                {
                     maxPts = form;
                     bestPlayer = pick.footballer;
                 }
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 Console.WriteLine(ex);
             }
         }
         return bestPlayer;
     }
 
-    private async Task writeReports(ScoutingReport report, int gameweek) {
+    private ProcessedPlayer findDangerousPlayer(ProcessedTeam team)
+    {
+        var dangerPlayer = team.picks?.OrderByDescending(p => Double.Parse(p.footballer.rawData.footballer.form)).FirstOrDefault();
+        return dangerPlayer?.footballer;
+    }    
+
+    private async Task writeReports(ScoutingReport report, int gameweek)
+    {
         S3JsonWriter writer = new S3JsonWriter();
         foreach (var team in report.teams.Values)
         {
-            if (team == null) {
+            if (team == null)
+            {
                 continue;
             }
             await writer.write(string.Format(GlobalConfig.DataRoot + "/{0}/{1}/{2}/ScoutingReport", _leagueId, team.id, gameweek), report, true);
         }
     }
 
-    private async Task simulateH2h(ScoutingReport report) {
-        if (report.teams.Keys.Contains(0)) {
+    private async Task simulateH2h(ScoutingReport report)
+    {
+        if (report.teams.Keys.Contains(0))
+        {
             return;
         }
         H2hSimulator simulator = new H2hSimulator(_client, report.match.entry_1_entry, report.match.entry_2_entry);
         report.simulatedH2h = await simulator.simulate();
     }
 
-    private async Task findMatch(int teamId, ScoutingReport report, int gameweek) {
-        Match match = await findMatch(teamId, gameweek);
-        report.match = match;
+    private Match findMatch(int teamId, IEnumerable<Match> matches)
+    {
+        return matches.Where(m => m.entry_1_entry == teamId || m.entry_2_entry == teamId).First();
     }
 
-    private async Task<Match> findMatch(int teamId, int gameweek) {
-        Match match = await _client.findMatch(_leagueId, teamId, gameweek);
-        if (match == null) {
-            Console.WriteLine(string.Format("Unable to find match for team {0}, gameweek {1}\n", teamId, gameweek));
-        }
-        return match;
-    }
-
-    private void findDifferential(ScoutingReport report) {
+    private void findDifferential(ScoutingReport report)
+    {
         var teams = new List<ProcessedTeam>();
-        foreach (var team in report.teams.Values) {
+        foreach (var team in report.teams.Values)
+        {
             teams.Add(team);
         }
 
@@ -166,21 +201,25 @@ public class ScoutingProcessor
         report.differentials = diffFinder.find();
     }
 
-    protected Standing getStanding(Standings standings, int teamId) {
-        if (standings == null) {
+    protected Standing getStanding(Standings standings, int teamId)
+    {
+        if (standings == null)
+        {
             return null;
         }
 
         foreach (var standing in standings.standings.results)
         {
-            if (standing.entry == teamId) {
+            if (standing.entry == teamId)
+            {
                 return standing;
             }
         }
         return null;
     }
 
-    private void processTeams(IDictionary<int, ProcessedTeam> teams, Match match, ScoutingReport report, Standings standings) {
+    private void processTeams(IDictionary<int, ProcessedTeam> teams, Match match, ScoutingReport report, Standings standings)
+    {
         var teamIds = new HashSet<int>();
         teamIds.Add(match.entry_1_entry);
         teamIds.Add(match.entry_2_entry);
