@@ -30,8 +30,8 @@ public class MatchProcessor
         Standings standings = _leagueId > 0 ? await _client.getStandings(_leagueId) : null;
 
         ProcessedTeam pTeam1, pTeam2;
-        var v = _teams.TryGetValue(_match.entry_1_entry ?? 0, out pTeam1) ? pTeam1 : null;
-        v = _teams.TryGetValue(_match.entry_2_entry ?? 0, out pTeam2) ? pTeam2 : null;
+        var v = _teams.TryGetValue(_match.entry_1_entry, out pTeam1) ? pTeam1 : null;
+        v = _teams.TryGetValue(_match.entry_2_entry, out pTeam2) ? pTeam2 : null;
 
         if (pTeam1 == null) {
             pTeam1 = pTeam2;
@@ -41,10 +41,10 @@ public class MatchProcessor
             pTeam2 = pTeam1;
         }
 
-        var team1 = new ProcessedMatchTeam(pTeam1, getStanding(standings, _match.entry_1_entry ?? 0));
-        var team2 = new ProcessedMatchTeam(pTeam2, getStanding(standings, _match.entry_2_entry ?? 0));
+        var team1 = new ProcessedMatchTeam(pTeam1, getStanding(standings, _match.entry_1_entry));
+        var team2 = new ProcessedMatchTeam(pTeam2, getStanding(standings, _match.entry_2_entry));
 
-        H2hSimulator h2hSim = new H2hSimulator(_client, _match.entry_1_entry ?? 0, _match.entry_2_entry ?? 0);
+        H2hSimulator h2hSim = new H2hSimulator(_client, _match.entry_1_entry, _match.entry_2_entry);
         IDictionary<int, Record> h2hResults = new Dictionary<int, Record>();
         try {
             h2hResults = await h2hSim.simulate();

@@ -201,6 +201,15 @@ public class EPLClient
         return matchesInfo.matches[gameweek];
     }
 
+    public async Task<Match> findMatch(int leagueId, int teamId, int gameweek) {
+        foreach (var match in await findMatches(leagueId, gameweek)) {
+            if (match.entry_1_entry == teamId || match.entry_2_entry == teamId) {
+                return match;
+            }
+        }
+        return null;
+    }
+
     public async Task<ProcessedLeagueFixtureList> getLeagueEntriesAndMatches(int leagueId)
     {
         if (!_footballerCache.leagueEntriesAndMatches.ContainsKey(leagueId))

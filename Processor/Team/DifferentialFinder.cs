@@ -65,7 +65,7 @@ public class DifferentialFinder
         foreach (var v in set2) {
             diff1.Remove(v);
         }
-        foreach (var v in set2) {
+        foreach (var v in set1) {
             diff2.Remove(v);
         }
 

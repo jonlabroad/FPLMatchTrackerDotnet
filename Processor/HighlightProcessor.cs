@@ -13,7 +13,7 @@ public class HighlightProcessor
         _leagueId = leagueId;
     }
 
-    public async Task process() {
+    public async Task Process() {
         try {
             YoutubeClient client = new YoutubeClient();
             var highlights = await client.getHighlights(_gameweek);

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -5,14 +6,16 @@ public class SingleTeamProcessor
 {
     private int _teamId;
     int _gameweek;
+    int _leagueId;
     EPLClient _client;
     ProcessedPlayerProvider _playerProvider;
     ProcessedTeam _processedTeam = null;
 
-    public SingleTeamProcessor(ProcessedPlayerProvider provider, int teamId, int gameweek, EPLClient client)
+    public SingleTeamProcessor(ProcessedPlayerProvider provider, int teamId, int gameweek, int leagueId, EPLClient client)
     {
         _teamId = teamId;
         _gameweek = gameweek;
+        _leagueId = leagueId;
 
         _playerProvider = provider;
         _client = client;
@@ -20,6 +23,7 @@ public class SingleTeamProcessor
 
     public async Task<ProcessedTeam> process()
     {
+        Console.WriteLine($"Processing {_teamId}");
         // Collect the player information
         var processedPicks = await getPlayersForTeam();
 
@@ -34,8 +38,24 @@ public class SingleTeamProcessor
         }
         else {
             score = new Score();
-            score.startingScore = picks.entry_history.points;
-            score.subScore = picks.entry_history.points_on_bench;
+            if (picks != null) {
+                score.startingScore = picks.entry_history.points;
+                score.subScore = picks.entry_history.points_on_bench;
+            }
+            else {
+                // AVERAGE
+                Standings standings = await _client.getStandings(_leagueId);
+                foreach (Match match in standings.matches_this.results) {
+                    if (match.entry_1_entry == 0) {
+                        score.startingScore = match.entry_1_points;
+                        break;
+                    }
+                    else if (match.entry_2_entry == 0) {
+                        score.startingScore = match.entry_2_points;
+                        break;
+                    }
+                }
+            }
         }
 
         // Merge all the events into a single stream
@@ -47,6 +67,7 @@ public class SingleTeamProcessor
         team.transferCost = picks != null ? picks.entry_history.event_transfers_cost : 0;
 
         _processedTeam = team;
+        Console.WriteLine($"Completed Processing {_teamId}");
         return team;
     }
 
