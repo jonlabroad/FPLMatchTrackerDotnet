@@ -27,7 +27,7 @@ public class HighlightCache
         String json = JsonConvert.SerializeObject(newItems);
         try {
             var file = new StreamWriter(getFilepath());
-            Directory.CreateDirectory("cache");
+            Directory.CreateDirectory("./cache");
             await file.WriteAsync(json);
             file.Close();
         } catch (Exception e) {
@@ -47,6 +47,6 @@ public class HighlightCache
     }
 
     private string getFilepath() {
-        return string.Format("cache/highlight_{0}.json", _gameweek);
+        return string.Format("./cache/highlight_{0}.json", _gameweek);
     }
 }
