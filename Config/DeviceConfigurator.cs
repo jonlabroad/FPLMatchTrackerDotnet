@@ -15,13 +15,8 @@ public class DeviceConfigurator
 
     }
 
-    public async Task<DeviceConfig> readConfig(string uniqueDeviceId) {
-        string s3Key = getDeviceConfigPath(uniqueDeviceId);
+    public async Task<DeviceConfig> readConfig(string s3Key) {
         var config = await _reader.Read<DeviceConfig>(s3Key);
-        if (config == null)
-        {
-            config = new DeviceConfig(uniqueDeviceId);
-        }
         return config;
     }
 
@@ -30,7 +25,7 @@ public class DeviceConfigurator
         var keys = await _reader.getKeys(S3_CONFIG_DIR);
         foreach (var key in keys) {
             var config = await readConfig(key);
-            configs.Add(config.uniqueDeviceId, config);
+            configs?.Add(config.uniqueDeviceId, config);
         }
         return configs;
     }
