@@ -31,8 +31,8 @@ public class HighlightCache
             Console.WriteLine("Highlight cache path: " + filePath);
             var dirToCreate = Directory.GetCurrentDirectory() + "/cache";
             Console.WriteLine("Attempting to create " + dirToCreate);
-            var file = new StreamWriter(filePath);
             Directory.CreateDirectory(dirToCreate);
+            var file = new StreamWriter(filePath);
             await file.WriteAsync(json);
             file.Close();
         } catch (Exception e) {
