@@ -66,7 +66,7 @@ public class H2hSimulator
     }
 
     protected int getGameweekPoints(int gameweek, TeamHistory team) {
-        return team.history.Where(h => h.eventId == gameweek).First().eventId;
+        return team.history.Where(h => h.eventId == gameweek).First().points;
     }
 
     protected int findMinGameweek(TeamHistory team) {
