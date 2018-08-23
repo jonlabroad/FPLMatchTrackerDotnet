@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using NLog;
 
 public class ScoutingProcessor
 {
@@ -10,6 +11,7 @@ public class ScoutingProcessor
     IDictionary<int, ProcessedTeam> _teams = new Dictionary<int, ProcessedTeam>();
     int _leagueId;
     EPLClient _client = null;
+    private Logger _log = LogManager.GetCurrentClassLogger();
 
     public ScoutingProcessor(int leagueId, EPLClient client, IDictionary<int, ProcessedTeam> teams)
     {
@@ -52,7 +54,7 @@ public class ScoutingProcessor
         }
         await Task.WhenAll(allTasks);
         stopWatch.Stop();
-        Console.WriteLine($"Scouting processor complete {stopWatch.Elapsed.TotalSeconds} sec");
+        _log.Info($"Scouting processor complete {stopWatch.Elapsed.TotalSeconds} sec");
     }
 
     private async Task ProcessMatch(int gameweek, Match match, Standings standings)
@@ -66,7 +68,7 @@ public class ScoutingProcessor
         generateStats(report);
         await simulateH2h(report);
         await writeReports(report, gameweek);
-        Console.WriteLine($"Scouting GW {gameweek} Match {match.entry_1_entry} vs {match.entry_2_entry} complete");
+        _log.Info($"Scouting GW {gameweek} Match {match.entry_1_entry} vs {match.entry_2_entry} complete");
     }
 
     private void generateStats(ScoutingReport report)
@@ -126,7 +128,7 @@ public class ScoutingProcessor
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                _log.Error(ex);
             }
         }
         return bestPlayer;
@@ -149,7 +151,7 @@ public class ScoutingProcessor
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                _log.Error(ex);
             }
         }
         return bestPlayer;

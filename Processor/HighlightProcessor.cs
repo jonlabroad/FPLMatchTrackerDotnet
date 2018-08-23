@@ -1,11 +1,13 @@
 using System;
 using System.Threading.Tasks;
+using NLog;
 
 public class HighlightProcessor
 {
     private int _leagueId;
     private int _gameweek;
     private HighlightCache _highlightCache;
+    private Logger _log = LogManager.GetCurrentClassLogger();
 
     public HighlightProcessor(int gameweek, int leagueId) {
         _highlightCache = new HighlightCache(gameweek);
@@ -28,7 +30,7 @@ public class HighlightProcessor
             }
         }
         catch (Exception ex) {
-            Console.WriteLine(ex);
+            _log.Error(ex);
         }
     }
 }

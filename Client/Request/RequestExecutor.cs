@@ -38,7 +38,7 @@ public class RequestExecutor : IRequestExecutor
             return data.Data;
         }
         catch (Exception ex) {
-            Console.WriteLine(ex);
+            _log.Error(ex);
             return default(T);
         }
     }
@@ -54,7 +54,7 @@ public class RequestExecutor : IRequestExecutor
             return data.Content;
         }
         catch (Exception ex) {
-            Console.WriteLine(ex);
+            _log.Error(ex);
             return "";
         }
     }

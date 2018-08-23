@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NLog;
 
 public class EventTimer
 {
     EPLClient _client;
-
+    private static Logger _log = LogManager.GetCurrentClassLogger();
     public EventTimer(EPLClient client)
     {
         _client = client;
@@ -21,20 +22,20 @@ public class EventTimer
             {
                 GlobalConfig.CloudAppConfig.finalPollOfDayCompleted = true;
                 await new CloudAppConfigProvider().write(GlobalConfig.CloudAppConfig);
-                Console.WriteLine("All fixtures for the day are complete! Performing final poll");
+                _log.Info("All fixtures for the day are complete! Performing final poll");
                 return true;
             }
-            Console.WriteLine("All fixtures for the day are complete and final poll has been performed!");
+            _log.Info("All fixtures for the day are complete and final poll has been performed!");
             return false;
         }
 
         foreach (var fixture in todaysFixtures)
         {
-            Console.WriteLine(string.Format("{0} ({1}) @ ({2}) {3}: {4}\n", fixture.team_a, fixture.team_a_score, fixture.team_h_score, fixture.team_h, fixture.kickoff_time));
+            _log.Info(string.Format("{0} ({1}) @ ({2}) {3}: {4}\n", fixture.team_a, fixture.team_a_score, fixture.team_h_score, fixture.team_h, fixture.kickoff_time));
             DateTime now = DateTime.Now;
             if (fixture.started && now.CompareTo(Date.fromApiString(fixture.kickoff_time).AddHours(7)) <= 0)
             {
-                Console.WriteLine(string.Format("Found fixture: {0} @ {1}\n", fixture.team_a, fixture.team_h));
+                _log.Info(string.Format("Found fixture: {0} @ {1}\n", fixture.team_a, fixture.team_h));
                 return true;
             }
         }

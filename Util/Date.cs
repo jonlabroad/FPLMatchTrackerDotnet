@@ -16,7 +16,7 @@ public class Date
         try {
             return TimeZoneInfo.ConvertTime(date, TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time"));
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return  TimeZoneInfo.ConvertTime(date, TimeZoneInfo.FindSystemTimeZoneById("America/New_York"));
         }

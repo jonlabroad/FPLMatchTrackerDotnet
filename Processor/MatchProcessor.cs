@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NLog;
 
 public class MatchProcessor
 {
@@ -11,6 +12,7 @@ public class MatchProcessor
     protected int _leagueId = -1;
 
     protected MatchInfo _result = null;
+    private static Logger _log = LogManager.GetCurrentClassLogger();
 
     public MatchProcessor(EPLClient client, int leagueId, IDictionary<int, ProcessedTeam> teams, Match match) {
         _teams = teams;
@@ -51,7 +53,7 @@ public class MatchProcessor
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            _log.Error(ex);
         }
         var sharedEvents = new MatchEventDeduplicator().deduplicate(team1, team2);
         sharedEvents.Sort(new MatchEventSortComparator());
@@ -99,7 +101,7 @@ public class MatchProcessor
     public static async Task writeMatchInfo(int leagueId, MatchInfo info) {
         foreach (var id in info.teams.Keys)
         {
-            Console.WriteLine(string.Format("Writing data for {0}\n", id));
+            _log.Info(string.Format("Writing data for {0}\n", id));
             if (leagueId > 0) {
                 await new MatchInfoProvider(leagueId).writeCurrent(id, info);
             }

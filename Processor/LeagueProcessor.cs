@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using NLog;
 
 public class LeagueProcessor
 {
@@ -10,6 +11,7 @@ public class LeagueProcessor
     private int _gameweek;
     private int _leagueId;
     private ICollection<ProcessedTeam> _teams;
+    private static Logger _log = LogManager.GetCurrentClassLogger();
 
     public LeagueProcessor(ICollection<ProcessedTeam> teams, int leagueId, int gameweek)
     {
@@ -24,7 +26,7 @@ public class LeagueProcessor
         sw.Start();
         await findLiveGameweekStandings();
         sw.Stop();
-        Console.WriteLine($"LeagueProcessor took {sw.Elapsed.TotalSeconds} sec");
+        _log.Info($"LeagueProcessor took {sw.Elapsed.TotalSeconds} sec");
     }
 
     private async Task findLiveGameweekStandings()

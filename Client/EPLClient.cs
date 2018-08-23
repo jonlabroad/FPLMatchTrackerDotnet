@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using NLog;
 
 public class EPLClient
 {
     private EPLRequestGenerator _generator;
     private IRequestExecutor _executor;
     private FootballerDataCache _footballerCache;
+    private Logger _log = LogManager.GetCurrentClassLogger();
 
     public EPLClient(IRequestExecutor executor)  {
         initialize(executor);
@@ -95,7 +97,7 @@ public class EPLClient
             return await _executor.Execute<Picks>(request);
         }
         catch (Exception ex) {
-            Console.WriteLine(ex);
+            _log.Error(ex);
             return null;
         }
     }
@@ -158,7 +160,7 @@ public class EPLClient
         }
         catch(Exception ex) {
             NewStandings newStandings = await _executor.Execute<NewStandings>(request);
-            Console.WriteLine(ex);
+            _log.Error(ex);
             return new Standings(newStandings);
         }
     }
@@ -235,6 +237,7 @@ public class EPLClient
             return await _executor.Execute<LeagueEntriesAndMatches>(request);
         }
         catch (Exception ex) {
+            _log.Error(ex);
             return null;
         }
     }

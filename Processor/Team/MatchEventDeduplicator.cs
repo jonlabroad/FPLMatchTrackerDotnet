@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using NLog;
 
 public class MatchEventDeduplicator
 {
+    private static Logger _log = LogManager.GetCurrentClassLogger();
     public List<TeamMatchEvent> deduplicate(ProcessedTeam team1, ProcessedTeam team2) {
         if (team1.id == team2.id) {
             return team1.events;
@@ -16,7 +18,7 @@ public class MatchEventDeduplicator
                 var team1Pick = team1.getPick(team1Event.footballerId);
                 var team2Pick = team2.getPick(team2Event.footballerId);
                 if (team1Pick.equals(team2Pick)) {
-                    Console.WriteLine(string.Format("Found identical event: {0} {1}\n", team1Event.footballerName, team1Event.type.ToString()));
+                    _log.Info(string.Format("Found identical event: {0} {1}\n", team1Event.footballerName, team1Event.type.ToString()));
                     var sharedEvent = copiedEvents[copiedEvents.IndexOf(team1Event)];
                     sharedEvent.teamId = -1;
                     copiedEvents.Remove(team2Event);

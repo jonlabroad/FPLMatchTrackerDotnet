@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NLog;
 
 public class SingleTeamProcessor
 {
@@ -10,6 +11,7 @@ public class SingleTeamProcessor
     EPLClient _client;
     ProcessedPlayerProvider _playerProvider;
     ProcessedTeam _processedTeam = null;
+    private static Logger _log = LogManager.GetCurrentClassLogger();
 
     public SingleTeamProcessor(ProcessedPlayerProvider provider, int teamId, int gameweek, int leagueId, EPLClient client)
     {
@@ -23,7 +25,7 @@ public class SingleTeamProcessor
 
     public async Task<ProcessedTeam> process()
     {
-        Console.WriteLine($"Processing {_teamId}");
+        _log.Info($"Processing {_teamId}");
         // Collect the player information
         var processedPicks = await getPlayersForTeam();
 
@@ -67,7 +69,7 @@ public class SingleTeamProcessor
         team.transferCost = picks != null ? picks.entry_history.event_transfers_cost : 0;
 
         _processedTeam = team;
-        Console.WriteLine($"Completed Processing {_teamId}");
+        _log.Info($"Completed Processing {_teamId}");
         return team;
     }
 

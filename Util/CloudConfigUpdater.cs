@@ -1,9 +1,11 @@
 using System;
 using System.Threading.Tasks;
+using NLog;
 
 public class CloudConfigUpdater
 {
     private EPLClient _client;
+    private static Logger _log = LogManager.GetCurrentClassLogger();
 
     public CloudConfigUpdater(EPLClient client) {
         _client = client != null ? client : EPLClientFactory.createClient();
@@ -12,7 +14,7 @@ public class CloudConfigUpdater
     public async Task<bool> update() {
         var currentEvent = await getCurrentEvent();
         if (currentEvent == null) {
-            Console.WriteLine("Unable to find current event");
+            _log.Error("Unable to find current event");
             return false;
         }
 

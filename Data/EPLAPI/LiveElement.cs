@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using NLog;
 
 public class LiveElement
 {
+    private static Logger _log = LogManager.GetCurrentClassLogger();
     public JArray explain {get;set;}
     public LiveElementStats stats {get;set;}
 
@@ -33,7 +35,7 @@ public class LiveElement
             var field = typeof(FootballerScoreDetailElement).GetProperty(fieldName);
             field.SetValue(element, explain);
         } catch (Exception e) {
-            Console.WriteLine(e);
+            _log.Error(e);
         }
     }
 }

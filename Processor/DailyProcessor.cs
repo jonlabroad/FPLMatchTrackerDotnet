@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NLog;
 
 public class DailyProcessor
 {
     int _leagueId;
     EPLClient _client;
-
+    private static Logger _log = LogManager.GetCurrentClassLogger();
     public DailyProcessor(int leagueId, EPLClient client)
     {
         _leagueId = leagueId;
@@ -17,7 +18,7 @@ public class DailyProcessor
     {
         if (!IsTimeToProcess())
         {
-            Console.WriteLine("Daily processing already completed");
+            _log.Info("Daily processing already completed");
             return;
         }
 

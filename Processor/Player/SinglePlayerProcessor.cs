@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NLog;
 
 public class SinglePlayerProcessor
 {
@@ -10,6 +11,7 @@ public class SinglePlayerProcessor
     Live _currentLiveData;
     ProcessedPlayer _previousData;
     ProcessedPlayerProvider _playerProvider;
+    private static Logger _log = LogManager.GetCurrentClassLogger();
 
     public SinglePlayerProcessor(ProcessedPlayerProvider playerProvider, int gameweek, Footballer footballer, List<FootballerScoreDetailElement> explains, Live liveData) {
         _footballer = footballer;
@@ -23,7 +25,7 @@ public class SinglePlayerProcessor
     public async Task<ProcessedPlayer> process() {
         _previousData = await _playerProvider.getPlayer(_footballer.id);
         if (_currentExplains == null) {
-            Console.WriteLine(string.Format("No explains: {0}\n", _footballer.web_name));
+            _log.Error(string.Format("No explains: {0}\n", _footballer.web_name));
             return _previousData;
         }
 

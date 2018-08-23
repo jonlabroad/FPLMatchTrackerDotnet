@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using NLog;
 
 public class ScoreCalculator
 {
+    private static Logger _log = LogManager.GetCurrentClassLogger();
     public Score calculate(Picks picks, List<ProcessedPick> processedPicks, bool benchBoost)
     {
         // Find the footballers and tally the current score
@@ -42,7 +44,7 @@ public class ScoreCalculator
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    _log.Error(e);
                 }
             }
         }

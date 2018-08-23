@@ -2,11 +2,13 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using NLog;
 using static System.Net.Mime.MediaTypeNames;
 
 public class HighlightCache
 {
     private int _gameweek;
+    private static Logger _log = LogManager.GetCurrentClassLogger();
 
     public HighlightCache(int gameweek) {
         _gameweek = gameweek;
@@ -15,7 +17,7 @@ public class HighlightCache
     public async Task<bool> hasChanged(PlaylistItem[] newItems) {
         var previous = await getPreviousItems();
         if (previous != null && previous.Length == newItems.Length) {
-            Console.WriteLine("Identical number of highlights in latest data and current cache");
+            _log.Info("Identical number of highlights in latest data and current cache");
             return false;
         }
         if (newItems != null) {
@@ -34,7 +36,7 @@ public class HighlightCache
             await file.WriteAsync(json);
             file.Close();
         } catch (Exception e) {
-            Console.WriteLine(e);
+            _log.Error(e);
         }
     }
 
@@ -43,8 +45,8 @@ public class HighlightCache
         try {
             itemData = await new StreamReader(getFilepath()).ReadToEndAsync();
             return JsonConvert.DeserializeObject<PlaylistItem[]>(itemData);
-        } catch (Exception e) {
-            Console.WriteLine("No existing highlight cache found at " + getFilepath());
+        } catch (Exception) {
+            _log.Error("No existing highlight cache found at " + getFilepath());
             return null;
         }
     }

@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using NLog;
 
 public class Fixture
 {
+    private static Logger _log = LogManager.GetCurrentClassLogger();
     public int id{get;set;}
     
     public string kickoff_time_formatted{get;set;}
@@ -66,7 +68,7 @@ public class Fixture
             var field = typeof(EventStats).GetProperty(fieldName);
             field.SetValue(element, explain);
         } catch (Exception e) {
-            Console.WriteLine(e);
+            _log.Error(e);
         }
     }
 }

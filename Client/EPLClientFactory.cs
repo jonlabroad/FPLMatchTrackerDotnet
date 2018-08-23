@@ -1,6 +1,8 @@
 using System;
+using NLog;
 
 public class EPLClientFactory {
+    private static Logger _log = LogManager.GetCurrentClassLogger();
     public static EPLClient createClient() {
         return createHttpClient();
     }
@@ -9,7 +11,7 @@ public class EPLClientFactory {
         try {
             return new EPLClient(new RequestExecutor(false, 0));
         } catch (Exception e) {
-            Console.WriteLine(e);
+            _log.Error(e);
         }
         return null;
     }
@@ -18,7 +20,7 @@ public class EPLClientFactory {
         try {
             return new EPLClient(new RequestExecutor(record, currentSequence));
         } catch (Exception e) {
-            Console.WriteLine(e);
+            _log.Error(e);
         }
         return null;
     }

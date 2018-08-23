@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using NLog;
 
 public class ProcessedTeam
 {
@@ -13,6 +14,7 @@ public class ProcessedTeam
     public List<TeamMatchEvent> autosubs { get; set; } = new List<TeamMatchEvent>();
     public int transferCost { get; set; }
 
+    private static Logger _log = LogManager.GetCurrentClassLogger();
     public ProcessedTeam() {}
 
     public ProcessedTeam(int teamId, EntryData ent, List<ProcessedPick> processedPicks, Score s, List<TeamMatchEvent> eventList, string chip) {
@@ -23,7 +25,7 @@ public class ProcessedTeam
         entry = ent;
         activeChip = chip;
         if (!string.IsNullOrEmpty(activeChip)) {
-            Console.WriteLine(entry.entry.name + ": " + activeChip);
+            _log.Info(entry.entry.name + ": " + activeChip);
         }
     }
 

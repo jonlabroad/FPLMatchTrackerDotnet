@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NLog;
 
 public class PlayerProcessor
 {
     private EPLClient _client;
     private int _playerStart = -1;
     private int _playerEnd = -1;
+    private Logger _log = LogManager.GetCurrentClassLogger();
 
     public PlayerProcessor() {
         initialize(EPLClientFactory.createHttpClient());
@@ -44,7 +46,7 @@ public class PlayerProcessor
             return playerCollection;
         }
         catch (Exception ex) {
-            Console.WriteLine(ex);
+            _log.Error(ex);
         }
         return await Task.FromResult((ProcessedPlayerCollection) null);
     }

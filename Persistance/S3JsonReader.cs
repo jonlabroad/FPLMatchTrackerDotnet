@@ -4,8 +4,10 @@ using System.IO;
 using System.Threading.Tasks;
 using Amazon.S3.Model;
 using Newtonsoft.Json;
+using NLog;
 
 public class S3JsonReader : SimpleS3Provider {
+    private static Logger _log = LogManager.GetCurrentClassLogger();
     public async Task<T> Read<T>(string keyName)
     {
         try
@@ -18,8 +20,8 @@ public class S3JsonReader : SimpleS3Provider {
                 return config;
             }
         }
-        catch (Exception ex) {
-            Console.WriteLine(string.Format("Could not read {0}\n", keyName));
+        catch (Exception) {
+            _log.Error(string.Format("Could not read {0}\n", keyName));
         }
         return default(T);
     }

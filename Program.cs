@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using NLog;
+using NLog.AWS.Logger;
 
 namespace FPLMatchTrackerDotnet
 {
@@ -15,39 +16,47 @@ namespace FPLMatchTrackerDotnet
 
         static void Main(string[] args)
         {
-            var stopWatch = new Stopwatch();
-            stopWatch.Start();
-            var leagueId = 5815;
+            try
+            {
+                var stopWatch = new Stopwatch();
+                stopWatch.Start();
+                var leagueId = 5815;
 
-            var client = new EPLClient(new RequestExecutor());
-            var cachePreloader = new CachePreloader(client);
-            var preloadTask = cachePreloader.PreloadCache();
+                var client = new EPLClient(new RequestExecutor());
+                var cachePreloader = new CachePreloader(client);
+                var preloadTask = cachePreloader.PreloadCache();
 
-            // Processing only performed if this is running on-premise
-            var highlightProcessor = new HighlightProcessor(GlobalConfig.CloudAppConfig.CurrentGameWeek, leagueId);
-            var highlightTask = highlightProcessor.Process();
+                // Processing only performed if this is running on-premise
+                var highlightProcessor = new HighlightProcessor(GlobalConfig.CloudAppConfig.CurrentGameWeek, leagueId);
+                var highlightTask = highlightProcessor.Process();
 
-            var dailyProcessorTask = new DailyProcessor(leagueId, client).Process();
+                var dailyProcessorTask = new DailyProcessor(leagueId, client).Process();
 
-            if (!IsTimeToPoll(client).Result) {
-                _log.Info("It's not time yet! Quiting...");
-                highlightTask.Wait();
+                if (!IsTimeToPoll(client).Result) {
+                    _log.Info("It's not time yet! Quiting...");
+                    highlightTask.Wait();
+                    dailyProcessorTask.Wait();
+                    return;
+                }
+
+                var start = DateTime.Now;
+                var eventProcessor = new EventProcessor(client, GlobalConfig.CloudAppConfig.CurrentGameWeek);
+                var eventProcessorTask = eventProcessor.process();
+
+                var allMatchProcessor = new AllMatchProcessor(client, leagueId);
+                allMatchProcessor.Process().Wait();
+
+                preloadTask.Wait();
                 dailyProcessorTask.Wait();
-                return;
+                highlightTask.Wait();
+                stopWatch.Stop();
+                _log.Info($"All processing took {stopWatch.Elapsed.TotalSeconds} sec");
             }
-
-            var start = DateTime.Now;
-            var eventProcessor = new EventProcessor(client, GlobalConfig.CloudAppConfig.CurrentGameWeek);
-            var eventProcessorTask = eventProcessor.process();
-
-            var allMatchProcessor = new AllMatchProcessor(client, leagueId);
-            allMatchProcessor.Process().Wait();
-
-            preloadTask.Wait();
-            dailyProcessorTask.Wait();
-            highlightTask.Wait();
-            stopWatch.Stop();
-            _log.Info($"All processing took {stopWatch.Elapsed.TotalSeconds} sec");
+            catch (Exception ex)
+            {
+                _log.Error(ex);
+                throw;
+            }
         }
 
         private static async Task<bool> IsTimeToPoll(EPLClient client)

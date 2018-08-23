@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using NLog;
 
 public static class PlayerEventGenerator
 {
+    private static Logger _log = LogManager.GetCurrentClassLogger();
     public static List<MatchEvent> createNewEvents(FootballerScoreDetailElement detailsDiff, Footballer footballer, FootballerScoreDetailElement currentDetail)
     {
         var events = new List<MatchEvent>();
@@ -71,7 +73,7 @@ public static class PlayerEventGenerator
 
     private static void printMatchEvents(List<MatchEvent> events) {
         foreach (MatchEvent ev in events) {
-            Console.WriteLine(string.Format("{0} {1} {2} {3}", ev.number, ev.typeString, ev.footballerName, ev.pointDifference));
+            _log.Info(string.Format("{0} {1} {2} {3}", ev.number, ev.typeString, ev.footballerName, ev.pointDifference));
         }
     }
 }
