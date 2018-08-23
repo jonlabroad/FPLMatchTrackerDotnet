@@ -15,7 +15,7 @@ public class DailyProcessor
 
     public async Task Process()
     {
-        if (false && !IsTimeToProcess())
+        if (!IsTimeToProcess())
         {
             Console.WriteLine("Daily processing already completed");
             return;
