@@ -5,11 +5,14 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using NLog;
 
 namespace FPLMatchTrackerDotnet
 {
     class Program
     {
+        private static Logger _log = LogManager.GetCurrentClassLogger();
+
         static void Main(string[] args)
         {
             var stopWatch = new Stopwatch();
@@ -27,7 +30,7 @@ namespace FPLMatchTrackerDotnet
             var dailyProcessorTask = new DailyProcessor(leagueId, client).Process();
 
             if (!IsTimeToPoll(client).Result) {
-                Console.WriteLine("It's not time yet! Quiting...");
+                _log.Info("It's not time yet! Quiting...");
                 highlightTask.Wait();
                 dailyProcessorTask.Wait();
                 return;
@@ -44,7 +47,7 @@ namespace FPLMatchTrackerDotnet
             dailyProcessorTask.Wait();
             highlightTask.Wait();
             stopWatch.Stop();
-            Console.Write($"All processing took {stopWatch.Elapsed.TotalSeconds} sec");
+            _log.Info($"All processing took {stopWatch.Elapsed.TotalSeconds} sec");
         }
 
         private static async Task<bool> IsTimeToPoll(EPLClient client)
@@ -53,14 +56,14 @@ namespace FPLMatchTrackerDotnet
             var currentTime = DateTime.Now;
             var ev = await eventFinder.GetCurrentEvent();
             var eventStart = eventFinder.GetEventStartTime(ev);
-            Console.WriteLine(string.Format("Start date: {0}\n", eventStart.ToString()));
-            Console.WriteLine(string.Format("Current date: {0}\n", currentTime.ToString()));
-            Console.WriteLine(string.Format("Finished: {0}\n", ev.finished));
-            Console.WriteLine(string.Format("Data checked: {0}\n", ev.data_checked));
+            _log.Info(string.Format("Start date: {0}\n", eventStart.ToString()));
+            _log.Info(string.Format("Current date: {0}\n", currentTime.ToString()));
+            _log.Info(string.Format("Finished: {0}\n", ev.finished));
+            _log.Info(string.Format("Data checked: {0}\n", ev.data_checked));
 
             var fixtureTimer = new EventTimer(client);
             if (!await fixtureTimer.IsFixtureTime(ev)) {
-                Console.WriteLine("No fixtures are currently on");
+                _log.Info("No fixtures are currently on");
                 return false;
             }
 
