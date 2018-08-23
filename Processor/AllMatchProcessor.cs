@@ -3,18 +3,15 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using NLog;
 
 public class AllMatchProcessor
 {
     EPLClient _client;
     int _leagueId;
-    IDictionary<int, ProcessedTeam> _processedTeams = new ConcurrentDictionary<int, ProcessedTeam>();
-    Task<IDictionary<int, ProcessedTeam>> _processedTeamTask;
-    SemaphoreSlim _teamLock = new SemaphoreSlim(0,1);
     List<Task> _matchProcessingTasks = new List<Task>();
     IDictionary<string, MatchInfo> _matchInfos = new ConcurrentDictionary<string, MatchInfo>();
-    SemaphoreSlim _matchLock = new SemaphoreSlim(0,1);
-
+    private Logger _log = LogManager.GetCurrentClassLogger();
     public AllMatchProcessor(EPLClient client, int leagueId)
     {
         _client = client;
@@ -27,19 +24,19 @@ public class AllMatchProcessor
         var preloadEntryTask = new CachePreloader(_client).PreloadEntryCache(teamsToProcess, GlobalConfig.CloudAppConfig.CurrentGameWeek);
 
         var matchTask = _client.findMatches(_leagueId, GlobalConfig.CloudAppConfig.CurrentGameWeek);
-        Console.WriteLine("Starting Player Processors");
+        _log.Debug("Starting Player Processors");
         var playerProcessor = new PlayerProcessor(_client);
         var processedPlayers = await playerProcessor.process();
-        Console.WriteLine("Player Processing Complete");
+        _log.Debug("Player Processing Complete");
 
-        Console.WriteLine("Starting team Processors");
+        _log.Debug("Starting team Processors");
         var teamProcessorTask = new TeamProcessor(_client, teamsToProcess, GlobalConfig.CloudAppConfig.CurrentGameWeek, _leagueId, processedPlayers).process();
-        Console.WriteLine("Team Processing Complete");
+        _log.Debug("Team Processing Complete");
         
         ScoreCalculator.EstimateAverageScore(await teamProcessorTask);
 
         var matches = await matchTask;
-        Console.WriteLine("Starting Match Processing");
+        _log.Debug("Starting Match Processing");
         foreach (var match in matches)
         {
             var matchKey = $"{match.entry_1_entry} {match.entry_2_entry}";
@@ -54,7 +51,7 @@ public class AllMatchProcessor
         }
         await Task.WhenAll(_matchProcessingTasks);
         await AddLiveStandingsAndSave();
-        Console.WriteLine("Match Processing Complete");
+        _log.Debug("Match Processing Complete");
     }
 
     private async Task AddLiveStandingsAndSave()

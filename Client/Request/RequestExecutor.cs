@@ -1,11 +1,13 @@
 using System;
 using System.Threading.Tasks;
+using NLog;
 using RestSharp;
 
 public class RequestExecutor : IRequestExecutor
 {
     bool _record;
     IRestClient _client;
+    private Logger _log = LogManager.GetCurrentClassLogger();
     //RequestResponseRecorder _recorder;
 
     public RequestExecutor() {
@@ -28,7 +30,7 @@ public class RequestExecutor : IRequestExecutor
     public async Task<T> Execute<T>(IRestRequest request) {
         try
         {
-            Console.WriteLine(request.Resource);
+            _log.Info(request.Resource);
             var data = await _client.ExecuteTaskAsync<T>(request);
             if (_record) {
                 //_recorder.record(request.getUrl(), jsonResponse.getBody());
@@ -44,7 +46,7 @@ public class RequestExecutor : IRequestExecutor
         public async Task<string> Execute(IRestRequest request) {
         try
         {
-            Console.WriteLine(request.Resource);
+            _log.Info(request.Resource);
             var data = await _client.ExecuteTaskAsync(request);
             if (_record) {
                 //_recorder.record(request.getUrl(), jsonResponse.getBody());

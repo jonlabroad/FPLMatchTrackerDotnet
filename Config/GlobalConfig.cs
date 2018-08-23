@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using NLog;
 
 public class GlobalConfig {
     public static readonly string EplBaseUrl = "https://fantasy.premierleague.com/drf";
@@ -40,6 +41,8 @@ public class GlobalConfig {
     public static int PlaybackGameweek = 10;
     public static int CurrentPlaybackSequence = 0;
     public static bool Record = false;
+
+    public Logger Log = NLog.LogManager.GetCurrentClassLogger();
 
     public static IDictionary<string, DeviceConfig> DeviceConfig = new DeviceConfigurator().readAllConfig().Result;
 }
