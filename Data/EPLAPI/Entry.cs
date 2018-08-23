@@ -30,7 +30,7 @@ public class Entry
     public int event_transfers_cost{ get; set; }
     public int extra_free_transfers{ get; set; }
     //public int strategy: null{ get; set; }
-    public int favourite_team{ get; set; }
+    public int? favourite_team{ get; set; }
     public int started_event{ get; set; }
     public int player{ get; set; }
 

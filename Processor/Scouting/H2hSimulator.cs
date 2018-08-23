@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 public class H2hSimulator
@@ -65,32 +66,15 @@ public class H2hSimulator
     }
 
     protected int getGameweekPoints(int gameweek, TeamHistory team) {
-        foreach (var hist in team.history) {
-            if (hist.eventId == gameweek) {
-                return hist.points;
-            }
-        }
-        return 0;
+        return team.history.Where(h => h.eventId == gameweek).First().eventId;
     }
 
     protected int findMinGameweek(TeamHistory team) {
-        int min = 10000;
-        foreach (var hist in team.history) {
-            if (hist.eventId < min) {
-                min = hist.eventId;
-            }
-        }
-        return min;
+        return team.history.Select(h => h.eventId).Min();
     }
 
     protected int findMaxGameweek(TeamHistory team) {
-        int max = 0;
-        foreach (var hist in team.history) {
-            if (hist.eventId > max) {
-                max = hist.eventId;
-            }
-        }
-        return max;
+        return team.history.Select(h => h.eventId).Max();
     }
 
     protected async Task<TeamHistory> getHistory(int teamId) {

@@ -177,8 +177,8 @@ public class EPLClient
             return null;
         }
         var request = _generator.GenerateHistoryRequest(teamId);
-        TeamHistory data = await _executor.Execute<TeamHistory>(request);
-        return data;
+        var dataString = await _executor.Execute(request);
+        return JsonConvert.DeserializeObject<TeamHistory>(dataString);
     }
 
     public async Task<List<Club>> getClubs() {

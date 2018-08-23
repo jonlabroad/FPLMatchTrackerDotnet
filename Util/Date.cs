@@ -12,7 +12,7 @@ public class Date
 
     public static DateTime fromString(string dateString) {
         //var date = DateTime.ParseExact(dateString.Replace(" EDT", "").Replace(" EST",""), "yyyy-MM-dd HH:mm:ss", null);
-        var date = DateTime.Parse(dateString.Replace(" EDT", "").Replace(" EST",""));
+        var date = DateTime.Parse(dateString.Replace(" EDT", "").Replace(" EST","").Replace(" UTC", ""));
         try {
             return TimeZoneInfo.ConvertTime(date, TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time"));
         }
