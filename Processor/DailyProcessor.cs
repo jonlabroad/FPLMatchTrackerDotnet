@@ -22,9 +22,11 @@ public class DailyProcessor
         }
 
         await UpdateCloudAppConfig();
-        var allMatchProcessor = new AllMatchProcessor(_client, _leagueId);
-        await allMatchProcessor.Process();
-        await new ScoutingProcessor(_leagueId, _client, await allMatchProcessor.GetProcessedTeams()).Process();
+
+        var teamsInLeagueTask = _client.getTeamsInLeague(_leagueId);
+        var playerProcessorTask = new PlayerProcessor(_client).process();
+        var teamProcessorTask = new TeamProcessor(_client, await teamsInLeagueTask, GlobalConfig.CloudAppConfig.CurrentGameWeek, _leagueId, await playerProcessorTask).process();
+        await new ScoutingProcessor(_leagueId, _client, await teamProcessorTask).Process();
     }
 
     private bool IsTimeToProcess()

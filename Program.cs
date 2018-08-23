@@ -38,34 +38,11 @@ namespace FPLMatchTrackerDotnet
             var eventProcessorTask = eventProcessor.process();
 
             var allMatchProcessor = new AllMatchProcessor(client, leagueId);
-            var matchProcessingTasks = allMatchProcessor.Process();
+            allMatchProcessor.Process().Wait();
 
-            Task scoutingTask = null;
-            var writeTasks = new List<Task>();
-            Task.Run(async () =>
-            {
-                var matchInfos = await allMatchProcessor.GetMatchInfos();
-                if (leagueId > 0) {
-                    // Gross
-                    if (true) {
-                        var liveStandings = new LiveStandings(matchInfos, await client.getStandings(leagueId));
-                        liveStandings?.liveStandings?.Sort();
-                        foreach (var matchInfo in matchInfos) {
-                            try {
-                                matchInfo.liveStandings = liveStandings;
-                            } finally {
-                                writeTasks.Add(MatchProcessor.writeMatchInfo(leagueId, matchInfo));
-                            }
-                        }
-                        Task.WhenAll(writeTasks).Wait();
-                    }
-                }
-            }).Wait();
             preloadTask.Wait();
             dailyProcessorTask.Wait();
             highlightTask.Wait();
-            scoutingTask?.Wait();
-            matchProcessingTasks.Wait();
             stopWatch.Stop();
             Console.Write($"All processing took {stopWatch.Elapsed.TotalSeconds} sec");
         }

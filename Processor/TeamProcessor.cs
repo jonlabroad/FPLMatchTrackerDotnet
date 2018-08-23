@@ -9,19 +9,21 @@ public class TeamProcessor
     int _gameweek;
     int _leagueId;
     List<SingleTeamProcessor> _processors = new List<SingleTeamProcessor>();
+    ProcessedPlayerCollection _processedPlayers = null;
 
-    public TeamProcessor(EPLClient client, ICollection<int> teamIds, int gameweek, int leagueId) {
+    public TeamProcessor(EPLClient client, ICollection<int> teamIds, int gameweek, int leagueId, ProcessedPlayerCollection processedPlayers = null) {
         _client = client != null ? client : EPLClientFactory.createClient();
         _teamIds = teamIds;
         _gameweek = gameweek;
         _leagueId = leagueId;
+        _processedPlayers = processedPlayers;
     }
 
     public async Task<IDictionary<int, ProcessedTeam>> process() {
         var tasks = new List<Task<ProcessedTeam>>();
         foreach (var teamId in _teamIds)
         {
-            ProcessedPlayerProvider playerProvider = new ProcessedPlayerProvider();
+            ProcessedPlayerProvider playerProvider = new ProcessedPlayerProvider(_processedPlayers);
             SingleTeamProcessor processor = new SingleTeamProcessor(playerProvider, teamId, _gameweek, _leagueId, _client);
             tasks.Add(processor.process());
         }

@@ -13,11 +13,12 @@ public class ProcessedPlayerProvider
 
     ProcessedPlayerCollection _playerCache = null;
 
-    public ProcessedPlayerProvider() {
+    public ProcessedPlayerProvider(ProcessedPlayerCollection inputPlayers=null) {
         _gameweek = GlobalConfig.CloudAppConfig.CurrentGameWeek;
         _basePath = getBasePath();
         _writer = new S3JsonWriter();
         _reader = new S3JsonReader();
+        _playerCache = inputPlayers;
     }
 
     public async Task<ProcessedPlayer> getPlayer(int id) {

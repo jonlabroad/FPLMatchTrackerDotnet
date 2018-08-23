@@ -58,7 +58,7 @@ public class EPLClient
             if (!_footballerCache.liveData.ContainsKey(eventId))
             {
                 Live data = await readLiveEventData(eventId);
-                _footballerCache.liveData.Add(eventId, data);
+                _footballerCache.liveData[eventId] = data;
             }
             _footballerCache.liveDataLock.Release();
         }
@@ -167,7 +167,7 @@ public class EPLClient
         if (!_footballerCache.history.ContainsKey(teamId))
         {
             TeamHistory data = await readHistory(teamId);
-            _footballerCache.history.Add(teamId, data);
+            _footballerCache.history[teamId] = data;
         }
         return _footballerCache.history[teamId];
     }
@@ -218,7 +218,7 @@ public class EPLClient
             if (!_footballerCache.leagueEntriesAndMatches.ContainsKey(leagueId))
             {
                 ProcessedLeagueFixtureList data = await readLeagueH2hMatches(leagueId);
-                _footballerCache.leagueEntriesAndMatches.Add(leagueId, data);
+                _footballerCache.leagueEntriesAndMatches[leagueId] = data;
             }
             _footballerCache.leagueEntriesLock.Release();
         }
