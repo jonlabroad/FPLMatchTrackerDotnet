@@ -11,7 +11,7 @@ public class Entry
     public int summary_overall_points{ get; set; }
     public int summary_overall_rank{ get; set; }
     public int summary_event_points{ get; set; }
-    public int summary_event_rank{ get; set; }
+    public int? summary_event_rank{ get; set; }
     public int joined_seconds{ get; set; }
     public int current_event{ get; set; }
     public int total_transfers{ get; set; }
