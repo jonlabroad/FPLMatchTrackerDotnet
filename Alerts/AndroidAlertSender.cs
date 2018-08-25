@@ -17,9 +17,7 @@ public class AndroidAlertSender : IAlertSender
     }
 
     public async Task SendAlert(int teamId, string title, string subtitle) {
-        _log.Info("Sending alert for team {0}\n", teamId);
         var endpoints = await findTeamEndpoints(teamId);
-        _log.Info(string.Format("Found {0} endpoints for team {1}\n", endpoints.Count, teamId));
         foreach (var endpointArn in endpoints)
         {
             var request = new PublishRequest()
@@ -36,6 +34,7 @@ public class AndroidAlertSender : IAlertSender
                 Message = createDataMessage(title),
                 MessageStructure = "json"
             };
+            _log.Info($"Sending alert for team {teamId}\n");
             await _client.PublishAsync(request);
         }
     }
@@ -52,9 +51,7 @@ public class AndroidAlertSender : IAlertSender
         foreach (Endpoint endpoint in result.Endpoints) {
             if (endpoint.Attributes.GetValueOrDefault("Enabled").Equals("true", StringComparison.OrdinalIgnoreCase)) {
                 EndpointUserData userData = readUserData(endpoint.Attributes.GetValueOrDefault("CustomUserData"));
-                _log.Info(string.Format("Endpoint user playlistId: {0}, Firebase playlistId {1}\n", userData.uniqueUserId, userData.firebaseId));
                 if (devices.Contains(userData.uniqueUserId)) {
-                    _log.Info(string.Format("Found subscribed device! {0}\n", userData.uniqueUserId));
                     endpoints.Add(endpoint.EndpointArn);
                 }
             }
