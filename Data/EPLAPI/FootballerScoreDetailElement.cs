@@ -23,6 +23,14 @@ public class FootballerScoreDetailElement {
         diff.bonus = bonus.diff(other.bonus);
         diff.clean_sheets = clean_sheets.diff(other.clean_sheets);
         diff.assists = assists.diff(other.assists);
+        diff.yellow_cards = yellow_cards.diff(other.yellow_cards);
+        diff.red_cards = red_cards.diff(other.red_cards);
+        diff.penalties_missed = penalties_missed.diff(other.penalties_missed);
+        diff.goals_conceded = goals_conceded.diff(other.goals_conceded);
+        diff.saves = saves.diff(other.saves);
+        diff.penalties_saved = penalties_saved.diff(other.penalties_saved);
+        diff.own_goals = own_goals.diff(other.own_goals);
+
         return diff;
     }
 

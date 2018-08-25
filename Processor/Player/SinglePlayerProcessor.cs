@@ -36,12 +36,6 @@ public class SinglePlayerProcessor
             FootballerScoreDetailElement currExplain = _currentExplains[i];
             FootballerScoreDetailElement prevExplain = i < prevElements.Count ? prevElements[i] : null;
             FootballerScoreDetailElement diff = getPlayerDiff(currExplain, prevExplain);
-
-// TODO don't think I need this anymore
-//            if (prevExplain != null) {
-//                DataFilter filter = new DataFilter(currExplain, prevExplain, diff);
-//                diff = filter.filter();
-//            }
             addNewEvents(currentPlayerData.events, diff, _footballer, currExplain);
         }
 
@@ -53,6 +47,9 @@ public class SinglePlayerProcessor
     }
 
     private static void addNewEvents(List<MatchEvent> diff, FootballerScoreDetailElement detailsDiff, Footballer footballer, FootballerScoreDetailElement currentDetail) {
+        if (detailsDiff.red_cards.value > 0)
+            _log.Info("Hi");
+
         List<MatchEvent> newEvents = PlayerEventGenerator.createNewEvents(detailsDiff, footballer, currentDetail);
         newEvents.ForEach(e => diff.Add(e));
     }
