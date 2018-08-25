@@ -71,7 +71,8 @@ public class SinglePlayerProcessor
     }
 
     private bool isFixtureInProgress(Fixture fixture) {
-        return !fixture.finished && fixture.started;
+        //var now = DateTime.Now;
+        return !fixture.finished_provisional && fixture.started;
     }
 
     private bool isFixtureComplete(Fixture fixture) {
