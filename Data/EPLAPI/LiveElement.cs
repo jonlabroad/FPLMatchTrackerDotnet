@@ -20,7 +20,9 @@ public class LiveElement
                 foreach (var prop in explainJson.Properties()) {
                     var fieldName = prop.Name;
                     String elementJson = prop.Value.ToString();
-                    ScoreExplain parsedExplain = JsonConvert.DeserializeObject<ScoreExplain>(elementJson);
+                    ScoreExplain parsedExplain = JsonConvert.DeserializeObject<ScoreExplain>(elementJson, new JsonSerializerSettings {
+                                                            NullValueHandling = NullValueHandling.Ignore
+                                                        });
                     setField(parsedExplains, fieldName, parsedExplain);
                 }
             }

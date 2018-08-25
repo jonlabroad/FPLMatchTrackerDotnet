@@ -18,7 +18,7 @@ public class Standing
     public int points_total { get; set; }
     public int division { get; set; }
     private int _entry = 0;
-    public int? entry
+    public int entry
     {
         get
         {
@@ -26,7 +26,7 @@ public class Standing
         }
         set
         {
-            _entry = value ?? 0;
+            _entry = value;
         }
     }
 

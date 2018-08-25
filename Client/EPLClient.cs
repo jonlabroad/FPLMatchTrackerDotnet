@@ -70,7 +70,9 @@ public class EPLClient
     public async Task<Live> readLiveEventData(int eventId) {
         var request = _generator.GenerateLiveDataRequest(eventId);
         var liveString = await _executor.Execute(request);
-        var live = JsonConvert.DeserializeObject<Live>(liveString);
+        var live = JsonConvert.DeserializeObject<Live>(liveString, new JsonSerializerSettings {
+                                                            NullValueHandling = NullValueHandling.Ignore
+                                                        });
         foreach (var fixture in live.fixtures) {
             fixture.parsedStats = fixture.getStats();
         }
@@ -156,7 +158,9 @@ public class EPLClient
         var request = _generator.GenerateLeagueH2hStandingsRequest(leagueId);
         try {
             var standingsString = await _executor.Execute(request);
-            return JsonConvert.DeserializeObject<Standings>(standingsString);
+            return JsonConvert.DeserializeObject<Standings>(standingsString, new JsonSerializerSettings {
+                                                            NullValueHandling = NullValueHandling.Ignore
+                                                        });
         }
         catch(Exception ex) {
             NewStandings newStandings = await _executor.Execute<NewStandings>(request);
@@ -180,7 +184,9 @@ public class EPLClient
         }
         var request = _generator.GenerateHistoryRequest(teamId);
         var dataString = await _executor.Execute(request);
-        return JsonConvert.DeserializeObject<TeamHistory>(dataString);
+        return JsonConvert.DeserializeObject<TeamHistory>(dataString, new JsonSerializerSettings {
+                                                            NullValueHandling = NullValueHandling.Ignore
+                                                        });
     }
 
     public async Task<List<Club>> getClubs() {
@@ -246,7 +252,7 @@ public class EPLClient
         var standings = await getStandings(leagueId);
         var teams = new List<int>();
         foreach (var standing in standings.standings.results) {
-            teams.Add(standing.entry ?? 0);
+            teams.Add(standing.entry);
         }
         return teams;
     }

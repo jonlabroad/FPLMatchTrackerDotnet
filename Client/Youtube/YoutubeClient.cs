@@ -8,7 +8,9 @@ public class YoutubeClient
     public async Task<Item> getPlaylist(int gameweek) {
         var request = RequestGenerator.search(gameweek);
         var response = await executor.Execute(request);
-        SearchList list = JsonConvert.DeserializeObject<SearchList>(response);
+        SearchList list = JsonConvert.DeserializeObject<SearchList>(response, new JsonSerializerSettings {
+                                                            NullValueHandling = NullValueHandling.Ignore
+                                                        });
         return findItem(list);
     }
 
@@ -19,7 +21,9 @@ public class YoutubeClient
         {
             var request = RequestGenerator.playlistItems(playlist.id.GetValue("playlistId").ToString());
             var response = await executor.Execute(request);
-            var playlistItems = JsonConvert.DeserializeObject<PlaylistItems>(response);
+            var playlistItems = JsonConvert.DeserializeObject<PlaylistItems>(response, new JsonSerializerSettings {
+                                                            NullValueHandling = NullValueHandling.Ignore
+                                                        });
             return playlistItems.items;
         }
         return null;

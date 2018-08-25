@@ -44,7 +44,9 @@ public class HighlightCache
         String itemData = "";
         try {
             itemData = await new StreamReader(getFilepath()).ReadToEndAsync();
-            return JsonConvert.DeserializeObject<PlaylistItem[]>(itemData);
+            return JsonConvert.DeserializeObject<PlaylistItem[]>(itemData, new JsonSerializerSettings {
+                                                            NullValueHandling = NullValueHandling.Ignore
+                                                        });
         } catch (Exception) {
             _log.Error("No existing highlight cache found at " + getFilepath());
             return null;

@@ -20,7 +20,9 @@ public class SecretConfigurator {
         if (response.ContentLength > 0)
         {
             var configStr = await new StreamReader(response.ResponseStream).ReadToEndAsync();
-            var config = JsonConvert.DeserializeObject<SecretConfig>(configStr);
+            var config = JsonConvert.DeserializeObject<SecretConfig>(configStr, new JsonSerializerSettings {
+                                                            NullValueHandling = NullValueHandling.Ignore
+                                                        });
             return config;
         }
         return new SecretConfig();

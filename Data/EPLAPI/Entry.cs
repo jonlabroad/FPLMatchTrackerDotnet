@@ -11,7 +11,7 @@ public class Entry
     public int summary_overall_points{ get; set; }
     public int summary_overall_rank{ get; set; }
     public int summary_event_points{ get; set; }
-    public int? summary_event_rank{ get; set; }
+    public int summary_event_rank{ get; set; }
     public int joined_seconds{ get; set; }
     public int current_event{ get; set; }
     public int total_transfers{ get; set; }
@@ -30,14 +30,16 @@ public class Entry
     public int event_transfers_cost{ get; set; }
     public int extra_free_transfers{ get; set; }
     //public int strategy: null{ get; set; }
-    public int? favourite_team{ get; set; }
+    public int favourite_team{ get; set; }
     public int started_event{ get; set; }
     public int player{ get; set; }
 
     public void parseKit() {
         if (kit != null)
         {
-            kitParsed = JsonConvert.DeserializeObject<Kit>(kit);
+            kitParsed = JsonConvert.DeserializeObject<Kit>(kit, new JsonSerializerSettings {
+                                                            NullValueHandling = NullValueHandling.Ignore
+                                                        });
         }
     }
 }

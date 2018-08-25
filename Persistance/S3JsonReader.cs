@@ -16,7 +16,9 @@ public class S3JsonReader : SimpleS3Provider {
             if (response.ContentLength > 0)
             {
                 var configStr = await new StreamReader(response.ResponseStream).ReadToEndAsync();
-                var config = JsonConvert.DeserializeObject<T>(configStr);
+                var config = JsonConvert.DeserializeObject<T>(configStr, new JsonSerializerSettings {
+                                                            NullValueHandling = NullValueHandling.Ignore
+                                                        });
                 return config;
             }
         }

@@ -27,9 +27,9 @@ public class Fixture
     
     public string kickoff_time{get;set;}
     
-    public int? team_h_score {get;set;}
+    public int team_h_score {get;set;}
     
-    public int? team_a_score{get;set;}
+    public int team_a_score{get;set;}
     
     public bool finished{get;set;}
     
@@ -55,7 +55,9 @@ public class Fixture
             {
                 var statName = prop.Name;
                 var stat = prop.Value;
-                var parsedExplain = JsonConvert.DeserializeObject<HomeAwayStats>(stat.ToString());
+                var parsedExplain = JsonConvert.DeserializeObject<HomeAwayStats>(stat.ToString(), new JsonSerializerSettings {
+                                                            NullValueHandling = NullValueHandling.Ignore
+                                                        });
                 setField(parsedStats, statName, parsedExplain);
             }
         }

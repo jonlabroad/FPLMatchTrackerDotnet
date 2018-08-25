@@ -5,12 +5,12 @@ public class Match
     public int id { get; set; }
     
     [JsonProperty(PropertyName="entry_1_entry")]
-    private int? _entry_1_entry { get; set; }
+    private int _entry_1_entry { get; set; }
     
     [JsonIgnore]
     public int entry_1_entry {
         get {
-            return _entry_1_entry ?? 0;
+            return _entry_1_entry;
         } 
         set {
             _entry_1_entry = value;
@@ -19,11 +19,11 @@ public class Match
     public string entry_1_name { get; set; }
     public string entry_1_player_name { get; set; }
     [JsonProperty(PropertyName="entry_2_entry")]
-    private int? _entry_2_entry;
+    private int _entry_2_entry;
     [JsonIgnore]
     public int entry_2_entry {
         get {
-            return _entry_2_entry ?? 0;
+            return _entry_2_entry;
         } 
         set {
             _entry_2_entry = value;
