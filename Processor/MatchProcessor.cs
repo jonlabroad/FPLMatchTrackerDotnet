@@ -103,10 +103,10 @@ public class MatchProcessor
         {
             _log.Info(string.Format("Writing data for {0}\n", id));
             if (leagueId > 0) {
-                await new MatchInfoProvider(leagueId).writeCurrent(id, info);
+                await new MatchInfoProvider(leagueId, null).writeCurrent(id, info);
             }
             else {
-                await new MatchInfoProvider(leagueId).writeCup(id, info);
+                await new MatchInfoProvider(leagueId, null).writeCup(id, info);
             }
         }
     }

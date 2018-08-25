@@ -51,6 +51,9 @@ public class AllMatchProcessor
         }
         await Task.WhenAll(_matchProcessingTasks);
         await AddLiveStandingsAndSave();
+
+        await new AlertProcessor(_leagueId, teamsToProcess, _client, _matchInfos.Values).process();
+
         _log.Debug("Match Processing Complete");
     }
 

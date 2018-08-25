@@ -11,9 +11,10 @@ public class MatchInfoProvider : IMatchInfoDatastore
         private static readonly string CUP_KEY_FORMAT = "{0}/cup/{1}/{2}" + "/" + "MatchInfo";
 
         private int _leagueId;
+        private ICollection<MatchInfo> _matchInfoCache = new List<MatchInfo>();
 
-    public MatchInfoProvider(int leagueId) {
-        init(leagueId);
+    public MatchInfoProvider(int leagueId, ICollection<MatchInfo> matchInfos) {
+        init(leagueId, matchInfos);
     }
 
     public async Task<MatchInfo> readCurrent(int teamId, int eventId) {
@@ -32,7 +33,11 @@ public class MatchInfoProvider : IMatchInfoDatastore
         await _writer.delete(createCurrentKey(teamId, eventId));
     }
 
-    public async Task<List<MatchInfo>> readAll() {
+    public async Task<ICollection<MatchInfo>> readAll() {
+        if (_matchInfoCache != null && _matchInfoCache.Count > 0) {
+            return _matchInfoCache;
+        }
+
         var keys = await _reader.getKeys(string.Format(GlobalConfig.DataRoot + "/{0}", _leagueId));
         var matchInfos = new List<MatchInfo>();
         foreach (var key in keys) {
@@ -48,10 +53,11 @@ public class MatchInfoProvider : IMatchInfoDatastore
         return matchInfos;
     }
 
-    private void init(int leagueId) {
+    private void init(int leagueId, ICollection<MatchInfo> matchInfos) {
         _reader = new S3JsonReader();
         _writer = new S3JsonWriter();
         _leagueId = leagueId;
+        _matchInfoCache = matchInfos ?? _matchInfoCache;
     }
 
     private async Task<MatchInfo> readInfo(string keyName) {
