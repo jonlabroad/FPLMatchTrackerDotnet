@@ -32,9 +32,14 @@ public class HighlightCache
             var filePath = getFilepath();
             var dirToCreate = Directory.GetCurrentDirectory() + "/cache";
             Directory.CreateDirectory(dirToCreate);
-            var file = new StreamWriter(filePath);
-            await file.WriteAsync(json);
-            file.Close();
+            StreamWriter file = null;
+            try {
+                file = new StreamWriter(filePath);
+                await file.WriteAsync(json);
+            }
+            finally {
+                file?.Close();
+            }
         } catch (Exception e) {
             _log.Error(e);
         }
@@ -48,7 +53,7 @@ public class HighlightCache
                                                             NullValueHandling = NullValueHandling.Ignore
                                                         });
         } catch (Exception) {
-            _log.Error("No existing highlight cache found at " + getFilepath());
+            _log.Info("No existing highlight cache found at " + getFilepath());
             return null;
         }
     }

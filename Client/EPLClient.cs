@@ -96,7 +96,14 @@ public class EPLClient
     {
         var request = _generator.GeneratePicksRequest(teamId, eventId);
         try {
-            return await _executor.Execute<Picks>(request);
+            var response = await _executor.Execute(request);
+            if (!string.IsNullOrEmpty(response))
+            {
+                return JsonConvert.DeserializeObject<Picks>(response, new JsonSerializerSettings {
+                                                                NullValueHandling = NullValueHandling.Ignore
+                                                            });
+            }
+            return null;
         }
         catch (Exception ex) {
             _log.Error(ex);

@@ -32,7 +32,7 @@ namespace FPLMatchTrackerDotnet
 
                 var dailyProcessorTask = new DailyProcessor(leagueId, client).Process();
 
-                if (!IsTimeToPoll(client).Result) {
+                if (false && !IsTimeToPoll(client).Result) {
                     _log.Info("It's not time yet! Quiting...");
                     highlightTask.Wait();
                     dailyProcessorTask.Wait();
@@ -40,6 +40,9 @@ namespace FPLMatchTrackerDotnet
                 }
 
                 new CloudConfigUpdater(client).update().Wait();
+
+                //TESTING
+                GlobalConfig.CloudAppConfig.CurrentGameWeek = 2;
 
                 var start = DateTime.Now;
                 var eventProcessor = new EventProcessor(client, GlobalConfig.CloudAppConfig.CurrentGameWeek);

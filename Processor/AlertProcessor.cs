@@ -52,6 +52,9 @@ public class AlertProcessor
         int numRecentEvents = 0;
         DateTime lastPollDate = Date.fromString(_config.LastProcessTime);
         foreach (var ev in info.allEvents) {
+            if (ev.type == MatchEventType.AUTOSUB_IN || ev.type == MatchEventType.AUTOSUB_OUT) {
+                continue;
+            }
             DateTime eventDate = Date.fromString(ev.dateTime);
             if (eventDate.CompareTo(lastPollDate) > 0) {
                 _log.Info(string.Format("Found new event: {0} {1}\n", ev.footballerName, ev.type));
@@ -70,7 +73,7 @@ public class AlertProcessor
             }
         }
 
-        info.teams.Keys.Select(k => _processedTeams.Add(k));
+        info.teams.Keys.ToList().ForEach(k => _processedTeams.Add(k));
     }
 
     private bool alreadyProcessed(ICollection<int> teams) {

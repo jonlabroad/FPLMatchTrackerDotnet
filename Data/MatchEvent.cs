@@ -62,8 +62,11 @@ public class MatchEvent
                 return "Penalty save" + plural;
             case MatchEventType.OWN_GOALS:
                 return "Own goal" + plural;
-            case MatchEventType.AUTOSUB:
-                return "Autosub";
+            case MatchEventType.AUTOSUB_OUT:
+                return "Substitution Out";
+            case MatchEventType.AUTOSUB_IN:
+                return "Substitution In";
+                
             default:
                 return type.ToString();
         }

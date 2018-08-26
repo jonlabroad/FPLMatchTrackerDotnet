@@ -8,4 +8,5 @@ public class Picks
     public Event eventData { get; set; }
     public List<Pick> picks { get; set; }
     public EntryHistory entry_history { get; set; }
+    public List<AutomaticSub> automatic_subs { get; set; }
 }

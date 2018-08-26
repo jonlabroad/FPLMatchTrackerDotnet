@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using NLog;
 
@@ -62,10 +63,12 @@ public class SingleTeamProcessor
 
         // Merge all the events into a single stream
         List<TeamMatchEvent> events = mergeEvents(processedPicks);
+        if (picks != null)
+        {
+            (await CreateAutosubEvents(picks)).ForEach(s => events.Add(s));
+        }
         EntryData entry = await _client.getEntry(_teamId);
         ProcessedTeam team = new ProcessedTeam(_teamId, entry, processedPicks, score, events, picks != null ? picks.active_chip : "");
-        List<TeamMatchEvent> autosubs = new AutosubDetector().detectAutoSubs(_teamId, null, team.picks);
-        team.setAutosubs(autosubs);
         team.transferCost = picks != null ? picks.entry_history.event_transfers_cost : 0;
 
         _processedTeam = team;
@@ -105,6 +108,42 @@ public class SingleTeamProcessor
             }
         }
         return events;
+    }
+
+    private async Task<List<TeamMatchEvent>> CreateAutosubEvents(Picks picks)
+    {
+        var footballers = await _client.getFootballers();
+        var subList = new List<TeamMatchEvent>();
+        foreach (var sub in picks.automatic_subs)
+        {
+            var footballerIn = footballers[sub.element_in];
+            var footballerOut = footballers[sub.element_out];
+            var eventOut = new TeamMatchEvent
+            {
+                type = MatchEventType.AUTOSUB_OUT,
+                footballerName = footballerOut.web_name,
+                footballerId = footballerOut.id,
+                dateTime = Date.toString(DateTime.Now),
+                typeString = MatchEventType.AUTOSUB_OUT.ToString(),
+                pointDifference = 0,
+                number = 0,
+                teamId = _teamId
+            };
+            var eventIn = new TeamMatchEvent
+            {
+                type = MatchEventType.AUTOSUB_IN,
+                footballerName = footballerIn.web_name,
+                footballerId = footballerIn.id,
+                dateTime = Date.toString(DateTime.Now),
+                typeString = MatchEventType.AUTOSUB_IN.ToString(),
+                pointDifference = 0,
+                number = 0,
+                teamId = _teamId
+            };
+            subList.Add(eventOut);
+            subList.Add(eventIn);
+        }
+        return subList;
     }
 
     private async Task<ProcessedPlayer> readProcessedPlayer(int footballerId) {

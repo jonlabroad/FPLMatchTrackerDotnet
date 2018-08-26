@@ -25,7 +25,7 @@ public class SinglePlayerProcessor
     public async Task<ProcessedPlayer> process() {
         _previousData = await _playerProvider.getPlayer(_footballer.id);
         if (_currentExplains == null) {
-            _log.Error(string.Format("No explains: {0}\n", _footballer.web_name));
+            _log.Warn(string.Format("No explains: {0}\n", _footballer.web_name));
             return _previousData;
         }
 

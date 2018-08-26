@@ -36,7 +36,8 @@ public class PlayerProcessor
             var playerCollection = new ProcessedPlayerCollection();
             foreach (var id in players) {
                 var footballer = footballers[id];
-                var gwExplains = explains[id];
+                List<FootballerScoreDetailElement> gwExplains = new List<FootballerScoreDetailElement>();
+                explains.TryGetValue(id, out gwExplains);
                 var liveData = await _client.getLiveData(GlobalConfig.CloudAppConfig.CurrentGameWeek);
                 var processor = new SinglePlayerProcessor(provider, GlobalConfig.CloudAppConfig.CurrentGameWeek, footballer, gwExplains, liveData);
                 var player = await processor.process();
