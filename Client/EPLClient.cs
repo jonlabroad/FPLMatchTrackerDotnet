@@ -97,7 +97,7 @@ public class EPLClient
         var request = _generator.GeneratePicksRequest(teamId, eventId);
         try {
             var response = await _executor.Execute(request);
-            if (!string.IsNullOrEmpty(response))
+            if (teamId != 0 && !string.IsNullOrEmpty(response))
             {
                 return JsonConvert.DeserializeObject<Picks>(response, new JsonSerializerSettings {
                                                                 NullValueHandling = NullValueHandling.Ignore
@@ -106,6 +106,7 @@ public class EPLClient
             return null;
         }
         catch (Exception ex) {
+            _log.Error($"Error reading picks for team {teamId}, event {eventId}");
             _log.Error(ex);
             return null;
         }
