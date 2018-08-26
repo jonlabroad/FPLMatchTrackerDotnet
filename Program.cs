@@ -41,9 +41,6 @@ namespace FPLMatchTrackerDotnet
 
                 new CloudConfigUpdater(client).update().Wait();
 
-                //TESTING
-                GlobalConfig.CloudAppConfig.CurrentGameWeek = 2;
-
                 var start = DateTime.Now;
                 var eventProcessor = new EventProcessor(client, GlobalConfig.CloudAppConfig.CurrentGameWeek);
                 var eventProcessorTask = eventProcessor.process();
