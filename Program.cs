@@ -32,7 +32,7 @@ namespace FPLMatchTrackerDotnet
 
                 var dailyProcessorTask = new DailyProcessor(leagueId, client).Process();
 
-                if (false && !IsTimeToPoll(client).Result) {
+                if (!IsTimeToPoll(client).Result) {
                     _log.Info("It's not time yet! Quiting...");
                     highlightTask.Wait();
                     dailyProcessorTask.Wait();
