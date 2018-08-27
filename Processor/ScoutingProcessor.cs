@@ -35,7 +35,7 @@ public class ScoutingProcessor
         stopWatch.Start();
         Standings standings = await _client.getStandings(_leagueId);
         var allTasks = new List<Task>();
-        for (int gameweek = GlobalConfig.CloudAppConfig.CurrentGameWeek; gameweek <= 38; gameweek++)
+        for (int gameweek = GlobalConfig.CloudAppConfig.CurrentGameWeek + 1; gameweek <= 38; gameweek++)
         {
             var matches = await _client.findMatches(_leagueId, gameweek);
             foreach (ProcessedTeam team in _teams.Values)
