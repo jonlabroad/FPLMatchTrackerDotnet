@@ -159,7 +159,7 @@ public class ScoutingProcessor
 
     private ProcessedPlayer findDangerousPlayer(ProcessedTeam team)
     {
-        var dangerPlayer = team.picks?.OrderByDescending(p => Double.Parse(p.footballer.rawData.footballer.form)).FirstOrDefault();
+        var dangerPlayer = team.picks?.OrderByDescending(p => Double.Parse(p.footballer.rawData.footballer.ep_next)).FirstOrDefault();
         return dangerPlayer?.footballer;
     }    
 
