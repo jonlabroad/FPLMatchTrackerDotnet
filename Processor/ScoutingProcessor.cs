@@ -51,8 +51,10 @@ public class ScoutingProcessor
                 _processedTeams.Add(match.entry_2_entry);
             }
             _processedTeams.Clear();
+            await Task.WhenAll(allTasks);
+            allTasks.Clear();
         }
-        await Task.WhenAll(allTasks);
+
         stopWatch.Stop();
         _log.Info($"Scouting processor complete {stopWatch.Elapsed.TotalSeconds} sec");
     }

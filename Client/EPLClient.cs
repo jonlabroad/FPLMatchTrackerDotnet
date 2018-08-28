@@ -10,6 +10,7 @@ public class EPLClient
     private EPLRequestGenerator _generator;
     private IRequestExecutor _executor;
     private FootballerDataCache _footballerCache;
+    private int _maxAttempts = 10;
     private Logger _log = LogManager.GetCurrentClassLogger();
 
     public EPLClient(IRequestExecutor executor)  {
@@ -178,12 +179,25 @@ public class EPLClient
     }
 
     public async Task<TeamHistory> getHistory(int teamId) {
-        if (!_footballerCache.history.ContainsKey(teamId))
+       TeamHistory value = null;
+       var found = _footballerCache.history.TryGetValue(teamId, out value);
+        if (!found)
         {
-            TeamHistory data = await readHistory(teamId);
-            _footballerCache.history[teamId] = data;
+            var numAttempts = 0;
+            while (teamId != 0 && value == null && numAttempts < _maxAttempts)
+            {
+                if (numAttempts > 0) {
+                    _log.Warn($"Retrying history request for {teamId}");
+                }
+                numAttempts++;
+                value = await readHistory(teamId);
+                if (value != null)
+                {
+                    _footballerCache.history[teamId] = value;
+                }
+            }
         }
-        return _footballerCache.history[teamId];
+        return value;
     }
 
     private async Task<TeamHistory> readHistory(int teamId) {

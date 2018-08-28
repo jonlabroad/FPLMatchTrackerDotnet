@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using NLog;
 using RestSharp;
@@ -8,6 +9,7 @@ public class RequestExecutor : IRequestExecutor
     bool _record;
     IRestClient _client;
     private Logger _log = LogManager.GetCurrentClassLogger();
+    private SemaphoreSlim requestLock = new SemaphoreSlim(100, 100);
     //RequestResponseRecorder _recorder;
 
     public RequestExecutor() {
@@ -31,7 +33,9 @@ public class RequestExecutor : IRequestExecutor
         try
         {
             _log.Info(request.Resource);
+            await requestLock.WaitAsync();
             var data = await _client.ExecuteTaskAsync<T>(request);
+            requestLock.Release();
             if (_record) {
                 //_recorder.record(request.getUrl(), jsonResponse.getBody());
             }
@@ -47,7 +51,9 @@ public class RequestExecutor : IRequestExecutor
         try
         {
             _log.Info(request.Resource);
+            await requestLock.WaitAsync();
             var data = await _client.ExecuteTaskAsync(request);
+            requestLock.Release();
             if (_record) {
                 //_recorder.record(request.getUrl(), jsonResponse.getBody());
             }

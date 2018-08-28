@@ -24,10 +24,10 @@ public class DailyProcessor
 
         await UpdateCloudAppConfig();
 
-        var teamsInLeagueTask = _client.getTeamsInLeague(_leagueId);
-        var playerProcessorTask = new PlayerProcessor(_client).process();
-        var teamProcessorTask = new TeamProcessor(_client, await teamsInLeagueTask, GlobalConfig.CloudAppConfig.CurrentGameWeek, _leagueId, await playerProcessorTask).process();
-        await new ScoutingProcessor(_leagueId, _client, await teamProcessorTask).Process();
+        var teamsInLeague = await _client.getTeamsInLeague(_leagueId);
+        var processedPlayers = await new PlayerProcessor(_client).process();
+        var processedTeams = await new TeamProcessor(_client, teamsInLeague, GlobalConfig.CloudAppConfig.CurrentGameWeek, _leagueId, processedPlayers).process();
+        await new ScoutingProcessor(_leagueId, _client, processedTeams).Process();
     }
 
     private bool IsTimeToProcess()
