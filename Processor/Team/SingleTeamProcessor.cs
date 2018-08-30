@@ -68,7 +68,8 @@ public class SingleTeamProcessor
             (await CreateAutosubEvents(picks)).ForEach(s => events.Add(s));
         }
         EntryData entry = await _client.getEntry(_teamId);
-        ProcessedTeam team = new ProcessedTeam(_teamId, entry, processedPicks, score, events, picks != null ? picks.active_chip : "");
+        var history = await _client.getHistory(_teamId);
+        ProcessedTeam team = new ProcessedTeam(_teamId, entry, processedPicks, score, events, picks != null ? picks.active_chip : "", history);
         team.transferCost = picks != null ? picks.entry_history.event_transfers_cost : 0;
 
         _processedTeam = team;

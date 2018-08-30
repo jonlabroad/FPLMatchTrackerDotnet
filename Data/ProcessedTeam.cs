@@ -8,8 +8,8 @@ public class ProcessedTeam
     public List<ProcessedPick> picks { get; set; }
     public Score score { get; set; }
     public EntryData entry { get; set; }
+    public TeamHistory history { get; set; }
     public string activeChip { get; set; }
-
     public List<TeamMatchEvent> events { get; set; }
     public List<TeamMatchEvent> autosubs { get; set; } = new List<TeamMatchEvent>();
     public int transferCost { get; set; }
@@ -17,13 +17,14 @@ public class ProcessedTeam
     private static Logger _log = LogManager.GetCurrentClassLogger();
     public ProcessedTeam() {}
 
-    public ProcessedTeam(int teamId, EntryData ent, List<ProcessedPick> processedPicks, Score s, List<TeamMatchEvent> eventList, string chip) {
+    public ProcessedTeam(int teamId, EntryData ent, List<ProcessedPick> processedPicks, Score s, List<TeamMatchEvent> eventList, string chip, TeamHistory hist) {
         id = teamId;
         picks = processedPicks;
         score = s;
         events = eventList;
         entry = ent;
         activeChip = chip;
+        history = hist;
         if (!string.IsNullOrEmpty(activeChip)) {
             _log.Info(entry.entry.name + ": " + activeChip);
         }
