@@ -33,7 +33,7 @@ public class EventTimer
         {
             _log.Info(string.Format("{0} ({1}) @ ({2}) {3}: {4}\n", fixture.team_a, fixture.team_a_score, fixture.team_h_score, fixture.team_h, fixture.kickoff_time));
             DateTime now = DateTime.Now;
-            if (fixture.started && now.CompareTo(Date.fromApiString(fixture.kickoff_time).AddHours(7)) <= 0)
+            if (fixture.started && now.CompareTo(Date.fromApiString(fixture.kickoff_time).AddHours(8)) <= 0)
             {
                 _log.Info(string.Format("Found fixture: {0} @ {1}\n", fixture.team_a, fixture.team_h));
                 return true;
