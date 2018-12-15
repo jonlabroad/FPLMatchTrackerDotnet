@@ -5,13 +5,13 @@ using System.Threading.Tasks;
 public class TeamProcessor
 {
     EPLClient _client;
-    ICollection<int> _teamIds;
+    IEnumerable<int> _teamIds;
     int _gameweek;
     int _leagueId;
     List<SingleTeamProcessor> _processors = new List<SingleTeamProcessor>();
     ProcessedPlayerCollection _processedPlayers = null;
 
-    public TeamProcessor(EPLClient client, ICollection<int> teamIds, int gameweek, int leagueId, ProcessedPlayerCollection processedPlayers = null) {
+    public TeamProcessor(EPLClient client, IEnumerable<int> teamIds, int gameweek, int leagueId, ProcessedPlayerCollection processedPlayers = null) {
         _client = client != null ? client : EPLClientFactory.createClient();
         _teamIds = teamIds;
         _gameweek = gameweek;

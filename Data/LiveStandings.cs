@@ -7,7 +7,7 @@ public class LiveStandings
 
     public LiveStandings(ICollection<MatchInfo> matchInfos, Standings standings)
     {
-        foreach (var matchInfo in matchInfos)
+        foreach (var matchInfo in matchInfos.Where(m => !m.isCup))
         {
             var teams = matchInfo.teams.Values.ToArray();
             LiveStandingTeam team1 = new LiveStandingTeam(teams[0], teams[1], standings);

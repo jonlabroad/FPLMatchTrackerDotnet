@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -142,7 +143,10 @@ public class EPLClient
     private async Task<EntryData> readEntry(int teamId) {
         if (teamId > 0) {
             var request = _generator.GenerateEntryRequest(teamId);
-            EntryData data = await _executor.Execute<EntryData>(request);
+            var response = await _executor.Execute(request);
+            var data = JsonConvert.DeserializeObject<EntryData>(response, new JsonSerializerSettings {
+                                                                NullValueHandling = NullValueHandling.Ignore
+                                                            });
             data.entry.parseKit();
             return data;
         }
@@ -231,6 +235,16 @@ public class EPLClient
         return matchesInfo.matches[gameweek];
     }
 
+    public async Task<ICollection<Match>> getCupMatches(int teamId) {
+        var entry = await getEntry(teamId);
+        return entry?.leagues?.cup ?? new List<Match>();
+    }
+
+    public async Task<Match> findCupMatch(int teamId, int gameweek) {
+        var matches = await getCupMatches(teamId);
+        return matches.FirstOrDefault(m => m.eventId == gameweek);
+    }
+
     public async Task<Match> findMatch(int leagueId, int teamId, int gameweek) {
         foreach (var match in await findMatches(leagueId, gameweek)) {
             if (match.entry_1_entry == teamId || match.entry_2_entry == teamId) {
@@ -270,7 +284,7 @@ public class EPLClient
         }
     }
 
-    public async Task<ICollection<int>> getTeamsInLeague(int leagueId) {
+    public async Task<IEnumerable<int>> getTeamsInLeague(int leagueId) {
         var standings = await getStandings(leagueId);
         var teams = new List<int>();
         foreach (var standing in standings.standings.results) {

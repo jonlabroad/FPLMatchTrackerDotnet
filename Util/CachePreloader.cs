@@ -19,7 +19,7 @@ public class CachePreloader
         await Task.WhenAll(tasks);
     }
 
-    public async Task PreloadEntryCache(ICollection<int> teamIds, int gameweek)
+    public async Task PreloadEntryCache(IEnumerable<int> teamIds, int gameweek)
     {
         var tasks = teamIds.Select(async id => await _client.getEntry(id)).ToList();
         await Task.WhenAll(teamIds.Select(async id => await _client.getPicks(id, gameweek)).ToList());

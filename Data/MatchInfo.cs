@@ -11,6 +11,7 @@ public class MatchInfo
 
     // The only reason this is here is because I'm lazy. It should instead be part of a league-wide structure
     public LiveStandings liveStandings  { get; set; } = null;
+    public bool isCup { get; set; } = false;
 
     public MatchInfo() {}
 

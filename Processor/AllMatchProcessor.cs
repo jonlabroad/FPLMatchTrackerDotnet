@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using NLog;
@@ -21,6 +22,8 @@ public class AllMatchProcessor
     public async Task Process()
     {
         var teamsToProcess = await _client.getTeamsInLeague(_leagueId);
+        var cupTeams = await GetCupTeams(teamsToProcess);
+        teamsToProcess = cupTeams.Union(teamsToProcess);
         var preloadEntryTask = new CachePreloader(_client).PreloadEntryCache(teamsToProcess, GlobalConfig.CloudAppConfig.CurrentGameWeek);
 
         var matchTask = _client.findMatches(_leagueId, GlobalConfig.CloudAppConfig.CurrentGameWeek);
@@ -49,6 +52,27 @@ public class AllMatchProcessor
                 });
             }));
         }
+
+        _log.Debug("Starting Cup Processing");
+        foreach (var teamId in teamsToProcess)
+        {
+            var match = await _client.findCupMatch(teamId, GlobalConfig.CloudAppConfig.CurrentGameWeek);
+            if (match == null)
+            {
+                continue;
+            }
+
+            var matchKey = $"{match.entry_1_entry} {match.entry_2_entry}";
+            _matchProcessingTasks.Add(Task.Run(async () =>
+            {
+                var matchProcessor = new MatchProcessor(_client, 0 /* cup */, await teamProcessorTask, match);
+                await matchProcessor.process().ContinueWith(async (matchInfo) =>
+                {
+                    _matchInfos[matchKey] = await matchInfo;
+                });
+            }));
+        }
+
         await Task.WhenAll(_matchProcessingTasks);
         await AddLiveStandingsAndSave();
 
@@ -81,5 +105,21 @@ public class AllMatchProcessor
                 Task.WhenAll(writeTasks).Wait();
             }
         }
+    }
+
+    private async Task<IEnumerable<int>> GetCupTeams(IEnumerable<int> leagueTeams)
+    {
+        var newTeams = new HashSet<int>();
+        foreach(var teamId in leagueTeams)
+        {
+            var cupMatch = await _client.findCupMatch(teamId, GlobalConfig.CloudAppConfig.CurrentGameWeek);
+            if (cupMatch != null) {
+                if (cupMatch.entry_1_entry != teamId) {
+                    newTeams.Add(cupMatch.entry_1_entry);
+                }
+                newTeams.Add(cupMatch.entry_2_entry);
+            }
+        }
+        return newTeams;
     }
 }

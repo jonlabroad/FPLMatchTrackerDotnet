@@ -47,5 +47,13 @@ public class Match
     public int entry_2_total { get; set; }
     //seed_value: null,
     [JsonProperty(PropertyName="event")]
-    public int eventId { get; set; }
+    private int _eventId { get; set; }
+    public int eventId {
+        get {
+            return _eventId;
+        }
+        private set {
+            _eventId = value;
+        }
+     }
 }

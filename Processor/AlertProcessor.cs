@@ -8,7 +8,7 @@ public class AlertProcessor
 {
     AlertProcessorConfig _config;
     int _leagueId;
-    ICollection<int> _teamIds;
+    IEnumerable<int> _teamIds;
     MatchInfoProvider _matchInfoProvider;
     EPLClient _eplClient;
 
@@ -16,7 +16,7 @@ public class AlertProcessor
 
     private Logger _log = LogManager.GetCurrentClassLogger();
 
-    public AlertProcessor(int leagueId, ICollection<int> teamIds, EPLClient client, ICollection<MatchInfo> matchInfos=null) {
+    public AlertProcessor(int leagueId, IEnumerable<int> teamIds, EPLClient client, ICollection<MatchInfo> matchInfos=null) {
         AlertProcessorConfig config = readConfig().Result;
         _config = config != null ? config : new AlertProcessorConfig();
         _leagueId = leagueId;
@@ -121,7 +121,7 @@ public class AlertProcessor
     }
 
     private bool shouldAlertTeam(int teamId) {
-        if (_teamIds == null || _teamIds.Count == 0) {
+        if (_teamIds == null || _teamIds.Count() == 0) {
             return true;
         }
         return _teamIds.Contains(teamId);

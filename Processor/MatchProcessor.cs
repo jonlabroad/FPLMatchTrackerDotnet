@@ -95,6 +95,7 @@ public class MatchProcessor
         h2hSim.TryGetValue(team1.id, out h2h1);
         h2hSim.TryGetValue(team1.id, out h2h2);
         MatchInfo info = new MatchInfo(match.eventId, events, team1, team2, await getFixtures(match.eventId), h2h1, h2h2);
+        info.isCup = _leagueId == 0;
         return info;
     }
 
@@ -102,7 +103,7 @@ public class MatchProcessor
         foreach (var id in info.teams.Keys)
         {
             _log.Info(string.Format("Writing data for {0}\n", id));
-            if (leagueId > 0) {
+            if (!info.isCup) {
                 await new MatchInfoProvider(leagueId, null).writeCurrent(id, info);
             }
             else {
