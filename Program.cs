@@ -18,9 +18,12 @@ namespace FPLMatchTrackerDotnet
         {
             try
             {
+                var leagueId = 5815;
+
+                //RunUltimateH2h(leagueId); return;
+
                 var stopWatch = new Stopwatch();
                 stopWatch.Start();
-                var leagueId = 5815;
 
                 var client = new EPLClient(new RequestExecutor());
                 var cachePreloader = new CachePreloader(client);
@@ -59,6 +62,12 @@ namespace FPLMatchTrackerDotnet
                 _log.Error(ex);
                 throw;
             }
+        }
+
+        private static void RunUltimateH2h(int leagueId)
+        {
+            var uh2h = new UltimateH2h(leagueId);
+            uh2h.Calculate().Wait();
         }
 
         private static async Task<bool> IsTimeToPoll(EPLClient client)
