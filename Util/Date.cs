@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Runtime.Serialization;
 
 public class Date
@@ -10,7 +11,12 @@ public class Date
         return time.ToString("yyyy-MM-dd HH:mm:ss z");
     }
 
-    public static DateTime fromString(string dateString) {
+    public static DateTime parseConfigTime(string dateStr)
+    {
+        return DateTime.ParseExact(dateStr, "yyyy-MM-dd HH:mm:ss z", CultureInfo.InvariantCulture);
+    }
+
+    public static DateTime fromString(string dateString, bool utc=false) {
         //var date = DateTime.ParseExact(dateString.Replace(" EDT", "").Replace(" EST",""), "yyyy-MM-dd HH:mm:ss", null);
         var date = DateTime.Parse(dateString.Replace(" EDT", "").Replace(" EST","").Replace(" UTC", ""));
         try {
