@@ -13,12 +13,12 @@ public class ProcessedTeam
     public List<TeamMatchEvent> events { get; set; }
     public List<TeamMatchEvent> autosubs { get; set; } = new List<TeamMatchEvent>();
     public int transferCost { get; set; }
-    public List<string> Form { get; set; }
+    public List<string> form { get; set; }
 
     private static Logger _log = LogManager.GetCurrentClassLogger();
     public ProcessedTeam() {}
 
-    public ProcessedTeam(int teamId, EntryData ent, List<ProcessedPick> processedPicks, Score s, List<TeamMatchEvent> eventList, string chip, TeamHistory hist, List<string> form) {
+    public ProcessedTeam(int teamId, EntryData ent, List<ProcessedPick> processedPicks, Score s, List<TeamMatchEvent> eventList, string chip, TeamHistory hist, List<string> frm) {
         id = teamId;
         picks = processedPicks;
         score = s;
@@ -26,7 +26,7 @@ public class ProcessedTeam
         entry = ent;
         activeChip = chip;
         history = hist;
-        Form = form;
+        form = frm;
         if (!string.IsNullOrEmpty(activeChip)) {
             _log.Info(entry.entry.name + ": " + activeChip);
         }
