@@ -38,7 +38,7 @@ public class DailyProcessor
 
     private async Task UpdateCloudAppConfig()
     {
-        var currentTime = DateTime.Now;
+        var currentTime = DateTime.UtcNow;
         GlobalConfig.CloudAppConfig.day = Date.toString(currentTime);
         await new CloudAppConfigProvider().write(GlobalConfig.CloudAppConfig);
     }
