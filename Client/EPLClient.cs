@@ -293,6 +293,11 @@ public class EPLClient
         return teams;
     }
 
+    public async Task<Event> getEvent(int gw) {
+        var bootstrap = await getBootstrapStatic();
+        return bootstrap.events.Where(e => e.id == gw).FirstOrDefault();
+    }
+
     private FootballerDetails getCachedDetails(int id) {
         FootballerDetails data;
         return _footballerCache.footballerDetails.TryGetValue(id, out data) ? data : null;

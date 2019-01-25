@@ -76,19 +76,21 @@ public class SingleTeamProcessor
             var match = matches.Where(m => m.entry_1_entry == _teamId || m.entry_2_entry == _teamId).FirstOrDefault();
             var otherTeamId = match?.entry_1_entry == _teamId ? match.entry_2_entry : match.entry_1_entry;
             var otherHistory = await _client.getHistory(otherTeamId);
+            var avgScore = 0;
             if (_teamId == 0 || otherTeamId == 0) {
                 // Unsure how to proceed here for AVERAGE (I know it's possible... )
-                form.Add("_");
-                continue;
+                var evt = await _client.getEvent(gw);
+                avgScore = evt.average_entry_score;
             }
-
-            var thisScore = history.history.Where(h => h.eventId == gw).FirstOrDefault().points;
-            var otherScore = otherHistory?.history?.Where(h => h.eventId == gw).FirstOrDefault()?.points;
+            var thisScore = history?.history?.Where(h => h.eventId == gw).FirstOrDefault()?.points ?? avgScore;
+            var otherScore = otherHistory?.history?.Where(h => h.eventId == gw).FirstOrDefault()?.points ?? avgScore;
             var result = "W";
-            if (thisScore == otherScore) {
+            if (thisScore == otherScore)
+            {
                 result = "D";
             }
-            else if (thisScore < otherScore) {
+            else if (thisScore < otherScore)
+            {
                 result = "L";
             }
             form.Add(result);
