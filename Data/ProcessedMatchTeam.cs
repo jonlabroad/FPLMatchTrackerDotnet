@@ -5,7 +5,7 @@ public class ProcessedMatchTeam : ProcessedTeam
     public Standing standing {get;set;}
 
     public ProcessedMatchTeam(ProcessedTeam baseTeam, Standing stand)
-        : base(baseTeam.id, baseTeam.entry, baseTeam.picks, baseTeam.score, baseTeam.events, baseTeam.activeChip, baseTeam.history, baseTeam.Form)
+        : base(baseTeam.id, baseTeam.entry, baseTeam.picks, baseTeam.score, baseTeam.events, baseTeam.activeChip, baseTeam.history, baseTeam.form)
     {
         standing = stand;
     }
