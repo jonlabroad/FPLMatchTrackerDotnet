@@ -11,6 +11,6 @@ public class DailyTimer
     {
         var lastConfigDay = GlobalConfig.CloudAppConfig.day;
         var currentTime = DateTime.Now;
-        return GlobalConfig.CloudAppConfig.day > 0 || lastConfigDay != currentTime.Day;
+        return GlobalConfig.CloudAppConfig.day <= 0 || lastConfigDay != currentTime.Day;
     }
 }
