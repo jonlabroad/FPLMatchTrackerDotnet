@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -21,13 +22,13 @@ public class EPLClient
     public async Task<IDictionary<int, Footballer>> getFootballers()
     {
         if (_footballerCache.footballers.Count <= 0) {
-            await _footballerCache.bootstrapLock.WaitAsync();
+            await _footballerCache.bootstrapStaticLock.WaitAsync();
             if (_footballerCache.footballers.Count <= 0) {
-                var request = _generator.GenerateFootballersRequest();
-                Bootstrap bootstrap = await _executor.Execute<Bootstrap>(request);
+                var request = _generator.GenerateBootstrapStaticRequest();
+                var bootstrap = await _executor.Execute<BootstrapStatic>(request);
                 _footballerCache.setFootballers(bootstrap.elements);
             }
-            _footballerCache.bootstrapLock.Release();
+            _footballerCache.bootstrapStaticLock.Release();
         }
         return _footballerCache.footballers;
     }
@@ -296,6 +297,18 @@ public class EPLClient
     public async Task<Event> getEvent(int gw) {
         var bootstrap = await getBootstrapStatic();
         return bootstrap.events.Where(e => e.id == gw).FirstOrDefault();
+    }
+
+    public async Task getMyTeam(int teamId) {
+        var request = _generator.GenerateMyTeamRequest(teamId);
+        var response = await _executor.ExecuteWithResponse(request);
+        Console.WriteLine(response.Content);
+    }
+
+    public async Task login(string email, string password) {
+        var loginExecutor = new RequestExecutor(GlobalConfig.LoginUrl);
+        var response = await loginExecutor.ExecuteWithResponse(_generator.GenerateLoginRequest(email, password));
+        _executor.Cookies = loginExecutor.Cookies;
     }
 
     private FootballerDetails getCachedDetails(int id) {

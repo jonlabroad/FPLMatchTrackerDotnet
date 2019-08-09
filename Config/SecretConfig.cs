@@ -5,6 +5,9 @@ public class SecretConfig {
     public string platformApplicationArn {get; set;} = "";
     public string googleApiKey {get; set;} = "";
 
+    public string fplEmail {get; set;} = "";
+    public string fplPassword {get; set;} = "";
+
     public void AddUser(int teamId, string teamName, string phoneNumber) {
         User user = new User();
         user.teamId = teamId;

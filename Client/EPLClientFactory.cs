@@ -9,7 +9,7 @@ public class EPLClientFactory {
 
     public static EPLClient createHttpClient() {
         try {
-            return new EPLClient(new RequestExecutor(false, 0));
+            return new EPLClient(new RequestExecutor(GlobalConfig.EplBaseUrl, false, 0));
         } catch (Exception e) {
             _log.Error(e);
         }
@@ -18,7 +18,7 @@ public class EPLClientFactory {
 
     public static EPLClient createHttpClient(bool record, int currentSequence) {
         try {
-            return new EPLClient(new RequestExecutor(record, currentSequence));
+            return new EPLClient(new RequestExecutor(GlobalConfig.EplBaseUrl, record, currentSequence));
         } catch (Exception e) {
             _log.Error(e);
         }

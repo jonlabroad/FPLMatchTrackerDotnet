@@ -46,7 +46,8 @@ public class ScoutingProcessor
                 }
 
                 var match = findMatch(team.id, matches);
-                allTasks.Add(ProcessMatch(gameweek, match, standings));
+                var evt = await _client.getEvent(gameweek);
+                allTasks.Add(ProcessMatch(gameweek, match, standings, evt));
                 _processedTeams.Add(match.entry_1_entry);
                 _processedTeams.Add(match.entry_2_entry);
             }
@@ -59,11 +60,11 @@ public class ScoutingProcessor
         _log.Info($"Scouting processor complete {stopWatch.Elapsed.TotalSeconds} sec");
     }
 
-    private async Task ProcessMatch(int gameweek, Match match, Standings standings)
+    private async Task ProcessMatch(int gameweek, Match match, Standings standings, Event evt)
     {
         ScoutingReport report = new ScoutingReport();
         report.gameweek = gameweek;
-
+        report.deadlineTimeFormatted = evt.deadline_time_formatted;
         report.match = match;
         processTeams(_teams, report.match, report, standings);
         findDifferential(report);

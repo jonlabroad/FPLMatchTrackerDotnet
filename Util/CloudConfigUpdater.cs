@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using NLog;
 
@@ -14,7 +15,6 @@ public class CloudConfigUpdater
     public async Task<bool> update() {
         var currentEvent = await getCurrentEvent();
         if (currentEvent == null) {
-            _log.Error("Unable to find current event");
             return false;
         }
 
@@ -34,6 +34,7 @@ public class CloudConfigUpdater
                 return ev;
             }
         }
-        return null;
+        _log.Error("Unable to find current event. Defaulting to 1");
+        return boot.events.First();
     }
 }

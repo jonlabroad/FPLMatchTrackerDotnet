@@ -1,4 +1,5 @@
 using System;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using NLog;
@@ -8,21 +9,24 @@ public class RequestExecutor : IRequestExecutor
 {
     bool _record;
     IRestClient _client;
+    public CookieContainer Cookies { get; set; }
     private Logger _log = LogManager.GetCurrentClassLogger();
     private SemaphoreSlim requestLock = new SemaphoreSlim(100, 100);
     //RequestResponseRecorder _recorder;
 
-    public RequestExecutor() {
-        initialize(false, 0);
+    public RequestExecutor(string host) {
+        initialize(host, false, 0);
     }
 
-    public RequestExecutor(bool record, int recordSequence)
+    public RequestExecutor(string host, bool record, int recordSequence)
     {
-        initialize(record, recordSequence);
+        initialize(host, record, recordSequence);
     }
 
-    private void initialize(bool record, int recordSequence) {
-        _client = new RestClient(GlobalConfig.EplBaseUrl);
+    private void initialize(string host, bool record, int recordSequence) {
+        Cookies = new CookieContainer();
+        _client = new RestClient(host);
+        _client.CookieContainer = Cookies;
         _record = record;
         if (_record) {
             //_recorder = new RequestResponseRecorder(GlobalConfig.CloudAppConfig.CurrentGameWeek, recordSequence);
@@ -63,5 +67,21 @@ public class RequestExecutor : IRequestExecutor
             _log.Error(ex);
             return "";
         }
+    }
+
+    public async Task<IRestResponse> ExecuteWithResponse(IRestRequest request)
+    {
+        try
+        {
+            _log.Info(request.Resource);
+            await requestLock.WaitAsync();
+            var data = await _client.ExecuteTaskAsync(request);
+            requestLock.Release();
+            return data;
+        }
+        catch (Exception ex) {
+            _log.Error(ex);
+            return null;
+        } 
     }
 }

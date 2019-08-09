@@ -21,36 +21,26 @@ public class H2hSimulator
     public async Task<IDictionary<int, Record>> simulate() {
         TeamHistory team1History = await getHistory(_team1Id);
         TeamHistory team2History = await getHistory(_team2Id);
-        if (team1History == null) {
-            team1History = team2History;
-        }
-        else if (team2History == null) {
-            team2History = team1History;
-        }
-        if (team1History == null || team2History == null)
-        {
-            return new Dictionary<int, Record>();
-        }
-        return simulate(team1History, team2History);
+        return await simulate(team1History, team2History);
     }
 
-    protected IDictionary<int, Record> simulate(TeamHistory team1, TeamHistory team2) {
+    protected async Task<IDictionary<int, Record>> simulate(TeamHistory team1, TeamHistory team2) {
         Record r1 = new Record();
         Record r2 = new Record();
         var records = new Dictionary<int, Record>();
-        records[team1.entry?.id ?? 0] = r1;
-        records[team2.entry?.id ?? 0] = r2;
+        records[team1?.entry?.id ?? 0] = r1;
+        records[team2?.entry?.id ?? 0] = r2;
         int minGw = Math.Max(findMinGameweek(team1), findMinGameweek(team2));
         int maxGw = Math.Min(findMaxGameweek(team1), findMaxGameweek(team2));
         for (int gw = minGw; gw <= maxGw; gw++) {
-            updateRecords(gw, team1, team2, r1, r2);
+            await updateRecords(gw, team1, team2, r1, r2);
         }
         return records;
     }
 
-    protected void updateRecords(int gameweek, TeamHistory team1, TeamHistory team2, Record r1, Record r2) {
-        int pts1 = getGameweekPoints(gameweek, team1);
-        int pts2 = getGameweekPoints(gameweek, team2);
+    protected async Task updateRecords(int gameweek, TeamHistory team1, TeamHistory team2, Record r1, Record r2) {
+        int pts1 = await getGameweekPoints(gameweek, team1);
+        int pts2 = await getGameweekPoints(gameweek, team2);
         if (pts1 > pts2) {
             r1.wins++;
             r2.losses++;
@@ -65,16 +55,22 @@ public class H2hSimulator
         }
     }
 
-    protected int getGameweekPoints(int gameweek, TeamHistory team) {
-        return team.history.Where(h => h.eventId == gameweek).First().points;
+    protected async Task<int> getGameweekPoints(int gameweek, TeamHistory team) {
+        var pts = team?.history.Where(h => h.eventId == gameweek).FirstOrDefault()?.points;
+        if (pts == null)
+        {
+            var evt = await _client.getEvent(gameweek);
+            pts = evt?.average_entry_score ?? 0;
+        }
+        return pts.Value;
     }
 
     protected int findMinGameweek(TeamHistory team) {
-        return team.history.Select(h => h.eventId).Min();
+        return team?.history.Select(h => h.eventId).Min() ?? 0;
     }
 
     protected int findMaxGameweek(TeamHistory team) {
-        return team.history.Select(h => h.eventId).Max();
+        return team?.history.Select(h => h.eventId).Max() ?? 1000000;
     }
 
     protected async Task<TeamHistory> getHistory(int teamId) {

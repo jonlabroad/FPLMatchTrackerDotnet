@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using NLog;
 
 public class GlobalConfig {
-    public static readonly string EplBaseUrl = "https://fantasy.premierleague.com/drf";
+    public static readonly string EplBaseUrl = "https://fantasy.premierleague.com/api";
     public static readonly string FootballersPath = "/bootstrap";
     public static readonly string BootstrapStaticPath = "/bootstrap-static";
     public static readonly string EntryPath = "/entry/{ENTRY_ID}";
@@ -13,11 +13,13 @@ public class GlobalConfig {
     public static readonly string LivePath = "/event/{EVENT_ID}/live";
     public static readonly string LeagueH2hMatchesPath = "/leagues-entries-and-h2h-matches/league/{LEAGUE_ID}?page={PAGE}";
     public static readonly string HistoryPath = EntryPath + "/history";
+    public static readonly string LoginUrl = "https://users.premierleague.com";
+    public static readonly string LoginPath = "/accounts/login/";
 
     // Highlights
     public static string YoutubeChannelId = "UCqZQlzSHbVJrwrn5XvzrzcA";
 
-    public static readonly string SeasonPath = "Season2018";
+    public static readonly string SeasonPath = "Season2019v3";
     public static readonly string DataRoot = "data/" + SeasonPath;
     public static string MatchInfoRoot = DataRoot;
 

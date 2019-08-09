@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 public class YoutubeClient
 {
-    RequestExecutor executor = new RequestExecutor();
+    RequestExecutor executor = new RequestExecutor(GlobalConfig.EplBaseUrl);
 
     public async Task<Item> getPlaylist(int gameweek) {
         var request = RequestGenerator.search(gameweek);

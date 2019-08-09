@@ -11,9 +11,9 @@ public class ProcessedPlayer
 
     public ProcessedPlayer() {}
 
-    public ProcessedPlayer(Footballer footballer, IList<FootballerScoreDetailElement> explains, ProcessedPlayer oldData) {
+    public ProcessedPlayer(Footballer footballer, List<FootballerScoreDetailElement> explains, ProcessedPlayer oldData) {
         rawData.footballer = footballer;
-        rawData.explains = explains;
+        rawData.explain = explains;
         if (oldData != null) {
             oldData.events.ForEach(e => events.Add(e));
         }

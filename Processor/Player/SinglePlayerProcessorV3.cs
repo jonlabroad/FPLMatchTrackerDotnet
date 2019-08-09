@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using NLog;
 
-public class SinglePlayerProcessor
+public class SinglePlayerProcessorV3
 {
     int _gameweek;
     Footballer _footballer;
     List<FootballerScoreDetailElement> _currentExplains;
     Live _currentLiveData;
     ProcessedPlayer _previousData;
-    ProcessedPlayerProvider _playerProvider;
+    ProcessedPlayerProviderV3 _playerProvider;
     private static Logger _log = LogManager.GetCurrentClassLogger();
 
-    public SinglePlayerProcessor(ProcessedPlayerProvider playerProvider, int gameweek, Footballer footballer, List<FootballerScoreDetailElement> explains, Live liveData) {
+    public SinglePlayerProcessorV3(ProcessedPlayerProviderV3 playerProvider, int gameweek, Footballer footballer, List<FootballerScoreDetailElement> explains, Live liveData) {
         _footballer = footballer;
         _currentExplains = explains;
         _currentLiveData = liveData;
@@ -31,12 +31,15 @@ public class SinglePlayerProcessor
 
         ProcessedPlayer currentPlayerData = new ProcessedPlayer(_footballer, _currentExplains, _previousData);
         determineFixtureStatus(currentPlayerData);
-        var prevElements = _previousData != null ?_previousData.rawData.explains : new List<FootballerScoreDetailElement>();
-        for (int i = 0; i < _currentExplains.Count; i++) {
-            FootballerScoreDetailElement currExplain = _currentExplains[i];
+        var prevElements = _previousData != null ?_previousData.rawData.explain : new List<FootballerScoreDetailElement>();
+        if (_previousData != null && _previousData.rawData.footballer.web_name.Equals("Salah")) {
+            Console.WriteLine("hi");
+        }
+        List<FootballerScoreDetailElement> currExplains = _currentExplains;
+        for (var i=0; i<currExplains.Count; i++) {
             FootballerScoreDetailElement prevExplain = i < prevElements.Count ? prevElements[i] : null;
-            FootballerScoreDetailElement diff = getPlayerDiff(currExplain, prevExplain);
-            addNewEvents(currentPlayerData.events, diff, _footballer, currExplain);
+            FootballerScoreDetailElement diff = getPlayerDiff(currExplains[i], prevExplain);
+            addNewEvents(currentPlayerData.events, diff, _footballer, currExplains[i]);
         }
 
         return currentPlayerData;

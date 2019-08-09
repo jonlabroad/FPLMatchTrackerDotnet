@@ -15,7 +15,7 @@ public class RequestGenerator
     }
 
     private static string createPlaylistTitle(int gameweek) {
-        return string.Format("2018+2019+Premier+League+Season+Matchday+{0}", gameweek);
+        return string.Format("2019+2020+Premier+League+Season+Matchday+{0}", gameweek);
     }
 
     private static IRestRequest build(string path) {

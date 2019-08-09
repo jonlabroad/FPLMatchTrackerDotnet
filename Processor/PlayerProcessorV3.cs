@@ -3,24 +3,23 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using NLog;
 
-public class PlayerProcessor
+public class PlayerProcessorV3
 {
     private EPLClient _client;
     private int _playerStart = -1;
     private int _playerEnd = -1;
     private Logger _log = LogManager.GetCurrentClassLogger();
 
-    public PlayerProcessor() {
+    public PlayerProcessorV3() {
         initialize(EPLClientFactory.createHttpClient());
     }
 
-    public PlayerProcessor(EPLClient client) {
+    public PlayerProcessorV3(EPLClient client) {
         initialize(client);
     }
 
-    public PlayerProcessor(int start, int end) {
-        PlayerProcessorConfig config = PlayerProcessorConfig.getInstance();
-        initialize(EPLClientFactory.createHttpClient(config.record, config.recorderSequence));
+    public PlayerProcessorV3(int start, int end) {
+        initialize(EPLClientFactory.createHttpClient());
         _playerStart = start;
         _playerEnd = end;
     }
@@ -29,17 +28,17 @@ public class PlayerProcessor
         try {
             // Get all the footballer data required
             var footballers = await getFootballers();
-            var players = getFootballersToProcess(footballers);
+            var players = footballers.Keys;
             var explains = await getLiveExplains(players);
 
-            var provider = new ProcessedPlayerProvider();
+            var provider = new ProcessedPlayerProviderV3();
             var playerCollection = new ProcessedPlayerCollection();
             foreach (var id in players) {
                 var footballer = footballers[id];
                 List<FootballerScoreDetailElement> gwExplains = new List<FootballerScoreDetailElement>();
                 explains.TryGetValue(id, out gwExplains);
                 var liveData = await _client.getLiveData(GlobalConfig.CloudAppConfig.CurrentGameWeek);
-                var processor = new SinglePlayerProcessor(provider, GlobalConfig.CloudAppConfig.CurrentGameWeek, footballer, gwExplains, liveData);
+                var processor = new SinglePlayerProcessorV3(provider, GlobalConfig.CloudAppConfig.CurrentGameWeek, footballer, gwExplains, liveData);
                 var player = await processor.process();
                 playerCollection.players.Add(id, player);
             }
@@ -83,10 +82,10 @@ public class PlayerProcessor
         var explains = new Dictionary<int, List<FootballerScoreDetailElement>>();
         var liveData = await _client.getLiveData(GlobalConfig.CloudAppConfig.CurrentGameWeek);
         foreach (int id in ids) {
-            LiveElement element;
-            if (liveData.elements.TryGetValue(id, out element))
+            LiveElement element = liveData.elements.Find(el => el.id == id);
+            if (element != null)
             {
-                explains.Add(id, liveData.elements[id].getExplains());
+                explains.Add(id, element.getExplains());
             }
         }
         return explains;

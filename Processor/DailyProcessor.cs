@@ -25,7 +25,7 @@ public class DailyProcessor
         await UpdateCloudAppConfig();
 
         var teamsInLeague = await _client.getTeamsInLeague(_leagueId);
-        var processedPlayers = await new PlayerProcessor(_client).process();
+        var processedPlayers = await new PlayerProcessorV3(_client).process();
         var processedTeams = await new TeamProcessor(_client, teamsInLeague, GlobalConfig.CloudAppConfig.CurrentGameWeek, _leagueId, processedPlayers).process();
         await new ScoutingProcessor(_leagueId, _client, processedTeams).Process();
     }

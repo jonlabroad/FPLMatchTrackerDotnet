@@ -51,7 +51,8 @@ public class UltimateH2h
                 }
             }
 
-            Console.WriteLine(string.Format("{0}. {1}: {2}W-{3}D-{4}L {5} {6}", place, rec.teamName, rec.wins, rec.draws, rec.losses, rec.getPoints(), place - standing.rank));
+            var achievement = place < standing.rank ? "underachieve" : "overachieve";
+            Console.WriteLine(string.Format("{0}. {1}: {2}W-{3}D-{4}L {5} {6}", place, rec.teamName, rec.wins, rec.draws, rec.losses, place - standing.rank, achievement));
             place++;
         }
     }

@@ -18,42 +18,19 @@ namespace FPLMatchTrackerDotnet
         {
             try
             {
-                var leagueId = 5815;
+                var leagueId = 22356;
 
-                //RunUltimateH2h(leagueId); return;
+                // RunUltimateH2h(leagueId); return;
 
                 var stopWatch = new Stopwatch();
                 stopWatch.Start();
 
-                var client = new EPLClient(new RequestExecutor());
-                var cachePreloader = new CachePreloader(client);
-                var preloadTask = cachePreloader.PreloadCache();
+                var client = new EPLClient(new RequestExecutor(GlobalConfig.EplBaseUrl));
 
-                // Processing only performed if this is running on-premise
-                var highlightProcessor = new HighlightProcessor(GlobalConfig.CloudAppConfig.CurrentGameWeek, leagueId);
-                var highlightTask = highlightProcessor.Process();
+                var allProcessorV3 = new AllProcessorV3(client, leagueId);
+                var allProcessorV3Task = allProcessorV3.Process();
+                allProcessorV3Task.Wait();
 
-                var dailyProcessorTask = new DailyProcessor(leagueId, client).Process();
-
-                if (!IsTimeToPoll(client).Result) {
-                    _log.Info("It's not time yet! Quiting...");
-                    highlightTask.Wait();
-                    dailyProcessorTask.Wait();
-                    return;
-                }
-
-                new CloudConfigUpdater(client).update().Wait();
-
-                var start = DateTime.Now;
-                var eventProcessor = new EventProcessor(client, GlobalConfig.CloudAppConfig.CurrentGameWeek);
-                var eventProcessorTask = eventProcessor.process();
-
-                var allMatchProcessor = new AllMatchProcessor(client, leagueId);
-                allMatchProcessor.Process().Wait();
-
-                preloadTask.Wait();
-                dailyProcessorTask.Wait();
-                highlightTask.Wait();
                 stopWatch.Stop();
                 _log.Info($"All processing took {stopWatch.Elapsed.TotalSeconds} sec");
             }

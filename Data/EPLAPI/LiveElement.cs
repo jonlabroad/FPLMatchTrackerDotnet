@@ -7,24 +7,21 @@ using NLog;
 public class LiveElement
 {
     private static Logger _log = LogManager.GetCurrentClassLogger();
-    public JArray explain {get;set;}
-    public LiveElementStats stats {get;set;}
+    public int id { get; set; }
+    public List<Explain> explain {get;set;}
+    public LiveElementStats stats {get;set;} = new LiveElementStats();
 
     public List<FootballerScoreDetailElement> getExplains() {
         var parsed = new List<FootballerScoreDetailElement>();
-        for (int i = 0; i < explain.Count; i++) {
-            var explainsArray = (JArray) explain[i];
-            FootballerScoreDetailElement parsedExplains = new FootballerScoreDetailElement();
-            for (var j = 0; j < explainsArray.Count - 1; j++) {
-                JObject explainJson = explainsArray[j] as JObject;
-                foreach (var prop in explainJson.Properties()) {
-                    var fieldName = prop.Name;
-                    String elementJson = prop.Value.ToString();
-                    ScoreExplain parsedExplain = JsonConvert.DeserializeObject<ScoreExplain>(elementJson, new JsonSerializerSettings {
-                                                            NullValueHandling = NullValueHandling.Ignore
-                                                        });
-                    setField(parsedExplains, fieldName, parsedExplain);
-                }
+        FootballerScoreDetailElement parsedExplains = new FootballerScoreDetailElement();
+        foreach (var singleExplain in explain) {
+            foreach (var stat in singleExplain.stats) {
+                var fieldName = stat.identifier;
+                var scoreExplain = new ScoreExplain();
+                scoreExplain.name = fieldName;
+                scoreExplain.points = stat.points;
+                scoreExplain.value = stat.value;
+                setField(parsedExplains, fieldName, scoreExplain);
             }
             parsed.Add(parsedExplains);
         }

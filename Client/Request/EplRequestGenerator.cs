@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using RestSharp;
 
 public class EPLRequestGenerator {
@@ -45,8 +46,26 @@ public class EPLRequestGenerator {
         return Build(resolvedUrl);
     }
 
+    public IRestRequest GenerateMyTeamRequest(int teamId) {
+        var path = $"/my-team/{teamId}/";
+        return Build(path);
+    }
+
+    public IRestRequest GenerateLoginRequest(string email, string password) {
+        var payload = new LoginPayload {
+            login = email,
+            password = password
+        };
+        return BuildPost(GlobalConfig.LoginPath, JsonConvert.SerializeObject(payload));
+    }
 
     private IRestRequest Build(string path) {
         return new RestRequest(path, Method.GET);
+    }
+
+    private IRestRequest BuildPost(string path, string body) {
+        var request = new RestRequest(path, Method.POST);
+        request.AddBody(body);
+        return request;
     }
 }
