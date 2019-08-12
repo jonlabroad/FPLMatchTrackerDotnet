@@ -21,16 +21,48 @@ public class AllProcessorV3
 
     public async Task Process()
     {
+        // my team: 55385
+
+        // Only required once per year ;)
+        //var leagueScheduleProcesser = new LeagueScheduleProcessor(_client);
+        //leagueScheduleProcesser.processH2hLeagues().Wait();
+
         //var teamsToProcess = await _client.getTeamsInLeague(_leagueId);
         //var preloadEntryTask = new CachePreloader(_client).PreloadEntryCache(teamsToProcess, GlobalConfig.CloudAppConfig.CurrentGameWeek);
 
-        _log.Debug("Starting Player Processors");
-        var playerProcessor = new PlayerProcessorV3(_client);
-        var processedPlayers = await playerProcessor.process();
-        _log.Debug("Player Processing Complete");
+        // TODO make only daily processor
+        //await new LeagueStandingsProcessor(_client).process();
+
+        if (await IsTimeToPoll(_client)) {
+            _log.Debug("Starting Player Processors");
+            var playerProcessor = new PlayerProcessorV3(_client);
+            var processedPlayers = await playerProcessor.process();
+            _log.Debug("Player Processing Complete");
+        }
 
         //await AddLiveStandingsAndSave();
 
         //await new AlertProcessor(_leagueId, teamsToProcess, _client, _matchInfos.Values).process();
+    }
+
+    private async Task<bool> IsTimeToPoll(EPLClient client)
+    {
+        var eventFinder = new EventFinder(client);
+        var currentTime = DateTime.Now;
+        var ev = await eventFinder.GetCurrentEvent();
+        var eventStart = eventFinder.GetEventStartTime(ev);
+        _log.Info(string.Format("Start date: {0}\n", eventStart.ToString()));
+        _log.Info(string.Format("Current date: {0}\n", currentTime.ToString()));
+        _log.Info(string.Format("Finished: {0}\n", ev.finished));
+        _log.Info(string.Format("Data checked: {0}\n", ev.data_checked));
+
+        var fixtureTimer = new EventTimer(client);
+        if (!await fixtureTimer.IsFixtureTime(ev))
+        {
+            _log.Info("No fixtures are currently on");
+            return false;
+        }
+
+        return true;
     }
 }

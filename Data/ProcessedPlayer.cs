@@ -14,8 +14,16 @@ public class ProcessedPlayer
     public ProcessedPlayer(Footballer footballer, List<FootballerScoreDetailElement> explains, ProcessedPlayer oldData) {
         rawData.footballer = footballer;
         rawData.explain = explains;
+        isCurrentlyPlaying = oldData.isCurrentlyPlaying;
+        isDonePlaying = oldData.isDonePlaying;
         if (oldData != null) {
             oldData.events.ForEach(e => events.Add(e));
         }
+    }
+
+    public static ProcessedPlayer ApiPlayer(ProcessedPlayer oldData) {
+        var newPlayer = new ProcessedPlayer(oldData.rawData.footballer, oldData.rawData.explain, oldData);
+        newPlayer.rawData = null;
+        return newPlayer;
     }
 }

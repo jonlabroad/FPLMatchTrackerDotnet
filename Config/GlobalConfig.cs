@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using NLog;
 
 public class GlobalConfig {
+    public static readonly int LoginTeamId = 55385;
     public static readonly string EplBaseUrl = "https://fantasy.premierleague.com/api";
     public static readonly string FootballersPath = "/bootstrap";
     public static readonly string BootstrapStaticPath = "/bootstrap-static";

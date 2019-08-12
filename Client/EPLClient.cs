@@ -154,6 +154,19 @@ public class EPLClient
         return null;
     }
 
+    public async Task<EntryV3> getEntryV3(int teamId) {
+        if (teamId > 0) {
+            var request = _generator.GenerateEntryRequest(teamId);
+            var response = await _executor.Execute(request);
+            var data = JsonConvert.DeserializeObject<EntryV3>(response, new JsonSerializerSettings {
+                                                                NullValueHandling = NullValueHandling.Ignore
+                                                            });
+            data.parseKit();
+            return data;
+        }
+        return null;
+    }
+
     public async Task<Standings> getStandings(int leagueId) {
         if (_footballerCache.standings == null)
         {
@@ -303,12 +316,6 @@ public class EPLClient
         var request = _generator.GenerateMyTeamRequest(teamId);
         var response = await _executor.ExecuteWithResponse(request);
         Console.WriteLine(response.Content);
-    }
-
-    public async Task login(string email, string password) {
-        var loginExecutor = new RequestExecutor(GlobalConfig.LoginUrl);
-        var response = await loginExecutor.ExecuteWithResponse(_generator.GenerateLoginRequest(email, password));
-        _executor.Cookies = loginExecutor.Cookies;
     }
 
     private FootballerDetails getCachedDetails(int id) {

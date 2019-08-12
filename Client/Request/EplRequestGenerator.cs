@@ -51,14 +51,6 @@ public class EPLRequestGenerator {
         return Build(path);
     }
 
-    public IRestRequest GenerateLoginRequest(string email, string password) {
-        var payload = new LoginPayload {
-            login = email,
-            password = password
-        };
-        return BuildPost(GlobalConfig.LoginPath, JsonConvert.SerializeObject(payload));
-    }
-
     private IRestRequest Build(string path) {
         return new RestRequest(path, Method.GET);
     }

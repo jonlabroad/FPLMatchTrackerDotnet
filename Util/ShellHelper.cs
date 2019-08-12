@@ -20,7 +20,6 @@ public static class ShellHelper
             process.Start();
             string result = process.StandardOutput.ReadToEnd();
             process.WaitForExit();
-            Console.WriteLine(result);
             return result;
         }
     }

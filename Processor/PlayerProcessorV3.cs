@@ -42,7 +42,8 @@ public class PlayerProcessorV3
                 var player = await processor.process();
                 playerCollection.players.Add(id, player);
             }
-            await provider.writePlayers(playerCollection);
+            await provider.writeFullPlayers(playerCollection);
+            await provider.writeApiPlayers(playerCollection);
             return playerCollection;
         }
         catch (Exception ex) {

@@ -13,4 +13,15 @@ public class ProcessedPlayerCollection
             players.Add(col);
         }
     }
+
+    public ProcessedPlayerCollection copyApi() {
+        var api = new ProcessedPlayerCollection();
+        foreach (var elementId in players.Keys) {
+            var element = players[elementId];
+            if (element.events != null && element.events.Count > 0) {
+                api.players.Add(elementId, ProcessedPlayer.ApiPlayer(element));
+            }
+        }
+        return api;
+    }
 }

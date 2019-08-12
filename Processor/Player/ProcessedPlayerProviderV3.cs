@@ -3,7 +3,8 @@ using System.Threading.Tasks;
 
 public class ProcessedPlayerProviderV3
 {
-    static readonly string FILENAME = "players.json";
+    static readonly string FULL_FILENAME = "players_full.json";
+    static readonly string API_FILENAME = "players.json";
 
     int _gameweek;
     string _basePath;
@@ -34,20 +35,29 @@ public class ProcessedPlayerProviderV3
         _playerCache = new ProcessedPlayerCollection();
         var keys = await _reader.getKeys(getBasePath());
         foreach (var key in keys) {
-            if (key.EndsWith(FILENAME)) {
+            if (key.EndsWith(FULL_FILENAME)) {
                 ProcessedPlayerCollection players = await _reader.Read<ProcessedPlayerCollection>(key);
                 _playerCache.merge(players);
             }
         }
     }
 
-    public async Task writePlayers(ProcessedPlayerCollection players) {
-        var pathName = getPathName();
+    public async Task writeFullPlayers(ProcessedPlayerCollection players) {
+        var pathName = getFullPathName();
         await _writer.write(pathName, players, true);
     }
 
-    private string getPathName() {
-        return string.Format("{0}/{1}", _basePath, FILENAME);
+    public async Task writeApiPlayers(ProcessedPlayerCollection players) {
+        var pathName = getApiPathName();
+        await _writer.write(pathName, players.copyApi(), true);
+    }
+
+    private string getFullPathName() {
+        return string.Format("{0}/{1}", _basePath, FULL_FILENAME);
+    }
+
+    private string getApiPathName() {
+        return string.Format("{0}/{1}", _basePath, API_FILENAME);
     }
 
     private string getBasePath() {
