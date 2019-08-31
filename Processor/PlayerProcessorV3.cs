@@ -26,19 +26,20 @@ public class PlayerProcessorV3
 
     public async Task<ProcessedPlayerCollection> process() {
         try {
+            var currEvent = await (new EventFinder(_client).GetCurrentEvent());
             // Get all the footballer data required
             var footballers = await getFootballers();
             var players = footballers.Keys;
             var explains = await getLiveExplains(players);
 
-            var provider = new ProcessedPlayerProviderV3();
+            var provider = new ProcessedPlayerProviderV3(currEvent.id);
             var playerCollection = new ProcessedPlayerCollection();
             foreach (var id in players) {
                 var footballer = footballers[id];
                 List<FootballerScoreDetailElement> gwExplains = new List<FootballerScoreDetailElement>();
                 explains.TryGetValue(id, out gwExplains);
-                var liveData = await _client.getLiveData(GlobalConfig.CloudAppConfig.CurrentGameWeek);
-                var processor = new SinglePlayerProcessorV3(provider, GlobalConfig.CloudAppConfig.CurrentGameWeek, footballer, gwExplains, liveData);
+                var liveData = await _client.getLiveData(currEvent.id);
+                var processor = new SinglePlayerProcessorV3(provider, currEvent.id, footballer, gwExplains, liveData);
                 var player = await processor.process();
                 playerCollection.players.Add(id, player);
             }
@@ -81,7 +82,23 @@ public class PlayerProcessorV3
     private async Task<IDictionary<int, List<FootballerScoreDetailElement>>> getLiveExplains(ICollection<int> ids)
     {
         var explains = new Dictionary<int, List<FootballerScoreDetailElement>>();
-        var liveData = await _client.getLiveData(GlobalConfig.CloudAppConfig.CurrentGameWeek);
+        var currEvent = await new EventFinder(_client).GetCurrentEvent();
+        var liveData = await _client.getLiveData(currEvent.id);
+        foreach (int id in ids) {
+            LiveElement element = liveData.elements.Find(el => el.id == id);
+            if (element != null)
+            {
+                explains.Add(id, element.getExplains());
+            }
+        }
+        return explains;
+    }
+
+    private async Task<IDictionary<int, List<FootballerScoreDetailElement>>> getLiveExplainsV3(ICollection<int> ids)
+    {
+        var explains = new Dictionary<int, List<FootballerScoreDetailElement>>();
+        var currEvent = await (new EventFinder(_client).GetCurrentEvent());
+        var liveData = await _client.getLiveData(currEvent.id);
         foreach (int id in ids) {
             LiveElement element = liveData.elements.Find(el => el.id == id);
             if (element != null)

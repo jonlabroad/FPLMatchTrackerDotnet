@@ -20,10 +20,9 @@ public class EventFinder
     public async Task<Event> GetCurrentEvent()
     {
         var boot = await _client.getBootstrapStatic();
-        int currentEvent = boot.currentEvent;
-        return await GetEvent(currentEvent);
+        var currentEvent = boot.events.FirstOrDefault(e => e.is_current);
+        return currentEvent;
     }
-
     
     public DateTime GetEventStartTime(Event ev)
     {

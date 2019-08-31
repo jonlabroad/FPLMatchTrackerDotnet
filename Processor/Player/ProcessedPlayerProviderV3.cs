@@ -14,8 +14,8 @@ public class ProcessedPlayerProviderV3
 
     ProcessedPlayerCollection _playerCache = null;
 
-    public ProcessedPlayerProviderV3(ProcessedPlayerCollection inputPlayers=null) {
-        _gameweek = GlobalConfig.CloudAppConfig.CurrentGameWeek;
+    public ProcessedPlayerProviderV3(int gameweek, ProcessedPlayerCollection inputPlayers=null) {
+        _gameweek = gameweek;
         _basePath = getBasePath();
         _writer = new S3JsonWriter();
         _reader = new S3JsonReader();

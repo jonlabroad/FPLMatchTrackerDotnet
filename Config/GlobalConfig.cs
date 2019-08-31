@@ -5,15 +5,15 @@ public class GlobalConfig {
     public static readonly int LoginTeamId = 55385;
     public static readonly string EplBaseUrl = "https://fantasy.premierleague.com/api";
     public static readonly string FootballersPath = "/bootstrap";
-    public static readonly string BootstrapStaticPath = "/bootstrap-static";
+    public static readonly string BootstrapStaticPath = "/bootstrap-static/";
     public static readonly string EntryPath = "/entry/{ENTRY_ID}";
-    public static readonly string EventPath = EntryPath + "/event/{EVENT_ID}";
+    public static readonly string EventPath = EntryPath + "/event/{EVENT_ID}/";
     public static readonly string PicksPath = EventPath + "/picks";
-    public static readonly string LeagueH2hPath = "/leagues-h2h-standings/{LEAGUE_ID}";
+    public static readonly string LeagueH2hPath = "/leagues-h2h-standings/{LEAGUE_ID}/";
     public static readonly string FootballerDetailsPath = "/element-summary/{FOOTBALLER_ID}";
-    public static readonly string LivePath = "/event/{EVENT_ID}/live";
+    public static readonly string LivePath = "/event/{EVENT_ID}/live/";
     public static readonly string LeagueH2hMatchesPath = "/leagues-entries-and-h2h-matches/league/{LEAGUE_ID}?page={PAGE}";
-    public static readonly string HistoryPath = EntryPath + "/history";
+    public static readonly string HistoryPath = EntryPath + "/history/";
     public static readonly string LoginUrl = "https://users.premierleague.com";
     public static readonly string LoginPath = "/accounts/login/";
 

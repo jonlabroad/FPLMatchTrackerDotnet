@@ -56,13 +56,10 @@ public class AllProcessorV3
         _log.Info(string.Format("Finished: {0}\n", ev.finished));
         _log.Info(string.Format("Data checked: {0}\n", ev.data_checked));
 
-        var fixtureTimer = new EventTimer(client);
-        if (!await fixtureTimer.IsFixtureTime(ev))
-        {
-            _log.Info("No fixtures are currently on");
-            return false;
+        if (ev.is_current && !ev.finished && !ev.data_checked) {
+            return true;
         }
 
-        return true;
+        return false;
     }
 }

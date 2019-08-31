@@ -14,9 +14,9 @@ public class ProcessedPlayer
     public ProcessedPlayer(Footballer footballer, List<FootballerScoreDetailElement> explains, ProcessedPlayer oldData) {
         rawData.footballer = footballer;
         rawData.explain = explains;
-        isCurrentlyPlaying = oldData.isCurrentlyPlaying;
-        isDonePlaying = oldData.isDonePlaying;
         if (oldData != null) {
+            isCurrentlyPlaying = oldData.isCurrentlyPlaying;
+            isDonePlaying = oldData.isDonePlaying;
             oldData.events.ForEach(e => events.Add(e));
         }
     }
