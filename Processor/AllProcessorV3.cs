@@ -33,6 +33,8 @@ public class AllProcessorV3
         // TODO make only daily processor
         //await new LeagueStandingsProcessor(_client).process();
 
+        await (new DailyProcessorV3(_leagueId, _client).Process());
+
         if (await IsTimeToPoll(_client)) {
             _log.Debug("Starting Player Processors");
             var playerProcessor = new PlayerProcessorV3(_client);
