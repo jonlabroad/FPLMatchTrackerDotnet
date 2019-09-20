@@ -40,6 +40,12 @@ public class EPLRequestGenerator {
         return Build(resolvedUrl);
     }
 
+    public IRestRequest GenerateFixturesRequest(int eventId) {
+        var request = new RestRequest(GlobalConfig.FixturesPath, Method.GET);
+        request.AddQueryParameter("event", eventId.ToString());
+        return request;
+    }
+
     public IRestRequest GenerateLeagueH2hMatchesRequest(int leagueId, int pageNum) {
         var resolvedUrl = VariableSubstitutor.SubstituteLeague(GlobalConfig.LeagueH2hMatchesPath, leagueId);
         resolvedUrl = VariableSubstitutor.SubstitutePage(resolvedUrl, pageNum);

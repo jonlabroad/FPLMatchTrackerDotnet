@@ -4,11 +4,9 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NLog;
 
-public class LiveElement
+public class LiveElement : LiveElementBase
 {
     private static Logger _log = LogManager.GetCurrentClassLogger();
-    public int id { get; set; }
-    public List<Explain> explain {get;set;} = new List<Explain>();
     public LiveElementStats stats {get;set;} = new LiveElementStats();
 
     public List<FootballerScoreDetailElement> getExplains() {

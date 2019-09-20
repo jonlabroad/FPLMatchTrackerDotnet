@@ -56,6 +56,12 @@ public class EPLClient
         return details;
     }
 
+    public async Task<List<Fixture>> GetFixtures(int eventId) {
+            var request = _generator.GenerateFixturesRequest(eventId);
+            var fixtures = await _executor.Execute<List<Fixture>>(request);
+            return fixtures;
+    }
+
     public async Task<Live> getLiveData(int eventId) {
         if (!_footballerCache.liveData.ContainsKey(eventId))
         {

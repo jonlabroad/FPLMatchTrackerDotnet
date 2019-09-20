@@ -1,0 +1,152 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+public class TimelinePredictor {
+    private EPLClient _client;
+    private int _gameweek;
+    private BootstrapStatic _bootstrap;
+    private Live _live;
+    private List<Fixture> _fixtures;
+
+    public TimelinePredictor(EPLClient client) {
+        _client = client;
+    }
+
+    public async Task Init() {
+        _bootstrap = await _client.getBootstrapStatic();
+        _live = await _client.getLiveData(_gameweek);
+        _fixtures = await _client.GetFixtures(_gameweek);
+    }
+
+    public async Task<LiveElementBase> Predict(LiveElementBase current) {
+        var prediction = new LiveElementBase(current);
+        foreach (var fixturePrediction in prediction.explain) {
+            var fixtureId = fixturePrediction.fixture;
+            var fixtures = await _client.GetFixtures(_gameweek);
+            var fixture = fixtures.FirstOrDefault(f => f.id == fixtureId);
+            if (fixture != null) {
+                MakePrediction(current, fixture, fixturePrediction);
+            }
+
+            // Ideas:
+            /*
+                If fixture is on:
+                    If player is playing: +1 (don't bother adding? since it gets added anyway)
+                    If player is playing, <60min and could possibly get to 60min, +1
+                    If gk/def still has CS (note: goals scored while player is out don't count... check CS rules): +4
+                    If mid still has CS: +1
+                    Mid/striker +avg, scale down based on time left in fixture, floor it on actual score
+
+                    Potential subs???? Add sub pts (if sub is valid)
+                "High" prediction: 
+            */
+        }
+
+        return prediction;
+    }
+
+    private void MakePrediction(LiveElementBase current, Fixture fixture, Explain explain) {
+        AddPotential(current, fixture, explain);
+    }
+
+    private void AddPotential(LiveElementBase current, Fixture fixture, Explain explain) {
+        var fixtureMinutes = GetEstimatedFixtureMinutes(fixture);
+        var minutesExplain = GetMinutes(explain);
+        var element = GetElement(current.id);
+        
+        // If fixture hasn't started, use the average
+        if (minutesExplain == null && fixtureMinutes <= 1.0e-6) {
+            var avg = GetAverage(element);
+            explain.stats.Add(avg);
+        }
+
+        // If fixture has started, scale the average based on minutes played is player is in
+        if (fixtureMinutes > 1.0e-6 && minutesExplain != null) {
+            var avg = GetAverage(element);
+            avg.points *= (int) Math.Round(1.0 - fixtureMinutes/90.0);
+            explain.stats.Add(avg);
+        }
+
+        // Goalkeepers and defenders get CS, if playing and eligible
+        if (IsMidGkOrDef(element)) {
+            var csExplain = GetCS(explain);
+            if (csExplain != null) {
+                if (minutesExplain != null) {
+                        if (!HasOtherTeamScored(element, fixture)) {
+                            // Player has no CS and is playing... 
+                            var maxMinutes = 93.0 - fixtureMinutes + minutesExplain.value;
+                            if (maxMinutes >= 60.0) {
+                                explain.stats.Add(new ExplainElement() {
+                                    identifier = "clean_sheets",
+                                    value = 1,
+                                    points = element.element_type == 3 ? 1 : 4
+                                });
+                            }
+                    }
+                }
+            }
+        } 
+    }
+
+    private Footballer GetElement(int elementId) {
+        return _bootstrap.elements.Find(e => e.id == elementId);
+    }
+
+    private bool IsMidGkOrDef(Footballer element) {
+        return element.element_type == 3 || element.element_type == 2 || element.element_type == 1;
+    }
+
+    private bool HasOtherTeamScored(Footballer element, Fixture fixture) {
+        var fixtureScoreOther = element.team == fixture.team_h ? fixture.team_a : fixture.team_h;
+        return fixtureScoreOther != 0;
+    }
+
+    private ExplainElement GetAverage(Footballer element) {
+        var ppgStr = element.points_per_game;
+        var ppg = double.Parse(ppgStr);
+        return new ExplainElement() {
+            identifier = "avg",
+            points = (int)Math.Round(ppg),
+            value = 1
+        };
+    }
+
+    private ExplainElement GetMinutes(Explain fixtureExplain) {
+        return fixtureExplain.stats.FirstOrDefault(e => e.identifier.Equals("minutes"));
+    }
+
+    private ExplainElement GetCS(Explain fixtureExplain) {
+        return fixtureExplain.stats.FirstOrDefault(e => e.identifier.Equals("clean_sheets"));
+    }
+
+    private bool IsFixtureInProgress(Fixture fixture) {
+        return fixture.started && !fixture.finished_provisional;
+    }
+
+    private double GetEstimatedFixtureMinutes(Fixture fixture) {
+        if (!fixture.started) {
+            return 0.0;
+        }
+
+        if (fixture.finished_provisional) {
+            return 90.0;
+        }
+
+        var now = DateTime.UtcNow;
+        var kickoffTime = DateTime.Parse(fixture.kickoff_time);
+        var endTime = kickoffTime.AddMinutes(120);
+        var span = now - kickoffTime;
+        var estimatedStoppage = 8;
+        if (span.TotalMinutes < 45) {
+            return span.TotalMinutes;
+        }
+        else if (span.TotalMinutes >= 45 && span.TotalMinutes < (60 + estimatedStoppage)) {
+            return 45;
+        }
+        else {
+            return (45 + (span.TotalMinutes - (60 + estimatedStoppage)));
+        }
+    }
+}

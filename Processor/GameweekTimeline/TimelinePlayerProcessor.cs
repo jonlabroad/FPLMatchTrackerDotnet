@@ -18,14 +18,27 @@ public class TimelinePlayerProcessor {
         var currEvent = bs.events.FirstOrDefault(ev => ev.is_current);
         var gw = currEvent.id;
         var currentLive = await _client.getLiveData(gw);
-
         var previousTimeline = await ReadPreviousTimeline(gw);
-        var newTimeline = new GameweekTimeline(previousTimeline, currentLive.elements);
+        var newTimeline = new GameweekTimeline(previousTimeline, currentLive.elements.Select(el => new LiveElementBase(el)).ToList());
 
         // Find and log differences between previous timeline and current live
         var diffs = FindAllPlayerDifferences(previousTimeline, currentLive);
         var timestamp = DateTime.Now;
 
+        // TEST for now
+/*
+        var prediction = new List<LiveElementBase>();
+        var predictor = new TimelinePredictor(_client);
+        await predictor.Init();
+        foreach (var element in bs.elements) {
+            // TODO we need to add blank live elements for the upcoming fixtures
+            var liveElement = currentLive.elements.FirstOrDefault(e => e.id == element.id) ?? new LiveElementBase() {
+                id = element.id
+            };
+            prediction.Add(await predictor.Predict(liveElement));
+        }
+        /////
+ */
         if (diffs.Count > 0) {
             newTimeline.timeline.Add(new GameweekTimelineEntry() {
                 timestamp = timestamp,
@@ -35,9 +48,9 @@ public class TimelinePlayerProcessor {
         }
     }
 
-    private List<LiveElement> FindAllPlayerDifferences(GameweekTimeline prev, Live currLive) {
-        var diffs = new List<LiveElement>();
-        foreach (var currLiveElement in currLive.elements) {
+    private List<LiveElementBase> FindAllPlayerDifferences(GameweekTimeline prev, Live currLive) {
+        var diffs = new List<LiveElementBase>();
+        foreach (LiveElementBase currLiveElement in currLive.elements) {
             var elementId = currLiveElement.id;
             var comparison = currLiveElement;
             if (prev != null) {
@@ -54,8 +67,11 @@ public class TimelinePlayerProcessor {
         return diffs;
     }
 
-    private LiveElement getBaseDiff(LiveElement curr) {
-        var diff = new LiveElement();
+    private LiveElementBase getBaseDiff(LiveElementBase curr) {
+        var diff = new LiveElementBase() {
+            id = curr.id
+        };
+
         var diffExplains = new List<Explain>();
         foreach (var explain in curr.explain) {
             var diffExplain = new Explain() {fixture = explain.fixture}; 
@@ -75,8 +91,10 @@ public class TimelinePlayerProcessor {
         return anyStats ? diff : null;
     }
 
-    private LiveElement Compare(LiveElement prev, LiveElement curr) {
-        var diff = new LiveElement();
+    private LiveElementBase Compare(LiveElementBase prev, LiveElementBase curr) {
+        var diff = new LiveElementBase() {
+            id = curr.id
+        };
         for (var i = 0; i < curr.explain.Count; i++) {
             var currFixtureExplain = curr.explain[i];
             var prevFixtureExplain = prev.explain.Count > i ? prev.explain[i] : null;
@@ -119,6 +137,20 @@ public class TimelinePlayerProcessor {
         diff.points = curr.points - prev.points;
         diff.value = curr.value - prev.value;
         return diff;
+    }
+
+    private void MakeRandomChange(Live live) {
+        var rand = new Random();
+        var i = rand.Next(0, live.elements.Count);
+        var j = rand.Next(0, live.elements[i].explain.Count);
+        var stats = live.elements[i].explain[j].stats;
+        var k = rand.Next(0, stats.Count);
+        var explain = stats[k];
+
+        var incValue = rand.Next(1, 5);
+        var incPoints = rand.Next(1,6);
+        explain.value += incValue;
+        explain.points += incPoints;
     }
 
     private async Task WriteTimeline(int gw, GameweekTimeline timeline) {

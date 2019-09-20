@@ -8,6 +8,7 @@ public class GlobalConfig {
     public static readonly string BootstrapStaticPath = "/bootstrap-static/";
     public static readonly string EntryPath = "/entry/{ENTRY_ID}/";
     public static readonly string EventPath = EntryPath + "event/{EVENT_ID}/";
+    public static readonly string FixturesPath = "/fixtures/";
     public static readonly string PicksPath = EventPath + "/picks";
     public static readonly string LeagueH2hPath = "/leagues-h2h-standings/{LEAGUE_ID}/";
     public static readonly string FootballerDetailsPath = "/element-summary/{FOOTBALLER_ID}";
