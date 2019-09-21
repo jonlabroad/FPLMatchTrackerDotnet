@@ -25,25 +25,23 @@ public class TimelinePlayerProcessor {
         var diffs = FindAllPlayerDifferences(previousTimeline, currentLive);
         var timestamp = DateTime.Now;
 
-        // TEST for now
-
         var prediction = new List<LiveElementBase>();
         var predictor = new TimelinePredictor(gw, _client);
         await predictor.Init();
         foreach (var element in bs.elements) {
-            // TODO we need to add blank live elements for the upcoming fixtures
             var liveElement = currentLive.elements.FirstOrDefault(e => e.id == element.id) ?? new LiveElementBase() {
                 id = element.id
             };
             prediction.Add(await predictor.Predict(liveElement));
         }
-        /////
+        newTimeline.prediction = prediction;
+        var predictionDiff = FindAllPlayerPredictionDifferences(previousTimeline != null ? previousTimeline.prediction : new List<LiveElementBase>(), newTimeline.prediction);
 
-        if (diffs.Count > 0 || prediction.Count > 0) {
+        if (diffs.Count > 0 || predictionDiff.Count > 0) {
             newTimeline.timeline.Add(new GameweekTimelineEntry() {
                 timestamp = timestamp,
                 diff = diffs,
-                prediction = prediction
+                predictionDiff = predictionDiff
             });
             await WriteTimeline(gw, newTimeline);
         }
@@ -56,6 +54,25 @@ public class TimelinePlayerProcessor {
             var comparison = currLiveElement;
             if (prev != null) {
                 var prevLiveElement = prev.liveElements.FirstOrDefault(p => p.id == elementId);
+                comparison = Compare(prevLiveElement, currLiveElement);
+            }
+            else {
+                comparison = getBaseDiff(currLiveElement);
+            }
+            if (comparison != null) {
+                diffs.Add(comparison);
+            }
+        }
+        return diffs;
+    }
+
+    private List<LiveElementBase> FindAllPlayerPredictionDifferences(List<LiveElementBase> prev, List<LiveElementBase> curr) {
+        var diffs = new List<LiveElementBase>();
+        foreach (LiveElementBase currLiveElement in curr) {
+            var elementId = currLiveElement.id;
+            var comparison = currLiveElement;
+            if (prev != null) {
+                var prevLiveElement = prev.FirstOrDefault(p => p.id == elementId);
                 comparison = Compare(prevLiveElement, currLiveElement);
             }
             else {

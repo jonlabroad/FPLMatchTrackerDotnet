@@ -8,7 +8,7 @@ public class GameweekTimelineEntry {
     
     public DateTime timestamp {get; set;}
     public List<LiveElementBase> diff {get; set;} = new List<LiveElementBase>();
-    public List<LiveElementBase> prediction {get;set;} = new List<LiveElementBase>();
+    public List<LiveElementBase> predictionDiff {get;set;} = new List<LiveElementBase>();
 }
 
 public class GameweekTimeline {
@@ -25,5 +25,6 @@ public class GameweekTimeline {
     public bool isStarted { get; set; } = false;
     public bool isFinished { get; set; } = false;
     public List<LiveElementBase> liveElements {get; set;} = new List<LiveElementBase>();
+    public List<LiveElementBase> prediction { get; set;}
     public List<GameweekTimelineEntry> timeline {get; set;} = new List<GameweekTimelineEntry>();
 }
