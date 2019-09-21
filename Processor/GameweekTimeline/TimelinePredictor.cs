@@ -58,21 +58,50 @@ public class TimelinePredictor {
         var minutesExplain = GetMinutes(explain);
         var element = GetElement(current.id);
         
+        if (minutesExplain == null) {
+            explain.stats.Add(new ExplainElement() {
+                identifier = "minutes",
+                value = 0,
+                points = 0
+            });
+        }
+
+        // Add minutes (assume > 60min if it is still possible)
+        if (minutesExplain.value > 0 && minutesExplain.value < 60) {
+            var maxMinutes = (90 - fixtureMinutes) + minutesExplain.value;
+            if (maxMinutes > 60) {
+                minutesExplain.value = 61;
+                minutesExplain.points = 2;
+            }
+        }
+        else if (minutesExplain.value == 0) {
+            // No minutes yet
+            if (fixture.started && !fixture.finished_provisional) {
+                // Fixture is on, how many can we get?
+                var maxMinutes = (90 - fixtureMinutes) + minutesExplain.value;
+                minutesExplain.value = (int) Math.Round(maxMinutes);
+                minutesExplain.points = maxMinutes >= 60 ? 2 : 1;
+            }
+            else if (!fixture.started) {
+                // Fixture hasn't started, assume start
+                minutesExplain.value = 90;
+                minutesExplain.points = 2;
+            }
+        }
+
         // Goalkeepers and defenders get CS, if playing and eligible
         if (IsMidGkOrDef(element)) {
             var csExplain = GetCS(explain);
             if (csExplain == null) {
-                if (minutesExplain != null) {
-                    if (!HasOtherTeamScored(element, fixture)) {
-                        // Player has no CS and is playing... 
-                        var maxMinutes = 93.0 - fixtureMinutes + minutesExplain.value;
-                        if (maxMinutes >= 60.0) {
-                            explain.stats.Add(new ExplainElement() {
-                                identifier = "clean_sheets",
-                                value = 1,
-                                points = element.element_type == 3 ? 1 : 4
-                            });
-                        }
+                if (!HasOtherTeamScored(element, fixture)) {
+                    // Player has no CS and is playing... 
+                    var maxMinutes = 93.0 - fixtureMinutes + minutesExplain.value;
+                    if (maxMinutes >= 60.0) {
+                        explain.stats.Add(new ExplainElement() {
+                            identifier = "clean_sheets",
+                            value = 1,
+                            points = element.element_type == 3 ? 1 : 4
+                        });
                     }
                 }
             }
