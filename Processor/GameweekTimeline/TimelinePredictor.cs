@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -67,6 +68,7 @@ public class TimelinePredictor {
         if (fixtureMinutes > 1.0e-6 && minutesExplain != null) {
             var avg = GetAverage(element);
             avg.points *= (int) Math.Round(1.0 - fixtureMinutes/90.0);
+            avg.value = (int) Math.Round(fixtureMinutes);
             explain.stats.Add(avg);
         }
 
@@ -136,7 +138,10 @@ public class TimelinePredictor {
         }
 
         var now = DateTime.UtcNow;
-        var kickoffTime = DateTime.Parse(fixture.kickoff_time);
+        var culture = CultureInfo.CreateSpecificCulture("en-GB");
+        var kickoffTime = DateTime.Parse(fixture.kickoff_time, culture);
+        kickoffTime = kickoffTime.ToUniversalTime();
+    
         var endTime = kickoffTime.AddMinutes(120);
         var span = now - kickoffTime;
         var estimatedStoppage = 8;
