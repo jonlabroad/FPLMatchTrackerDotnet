@@ -68,8 +68,8 @@ public class TimelinePredictor {
         if (fixtureMinutes > 1.0e-6 && minutesExplain != null) {
             var avg = GetAverage(element);
             avg.points = (int) Math.Round(avg.points * (1.0 - fixtureMinutes/90.0));
-            avg.value = 0;
             explain.stats.Add(avg);
+            avg.value = 0;
         }
 
         // Goalkeepers and defenders get CS, if playing and eligible

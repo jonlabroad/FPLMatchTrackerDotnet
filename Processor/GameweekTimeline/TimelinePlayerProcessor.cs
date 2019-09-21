@@ -37,6 +37,8 @@ public class TimelinePlayerProcessor {
         newTimeline.prediction = prediction;
         var predictionDiff = FindAllPlayerPredictionDifferences(previousTimeline != null ? previousTimeline.prediction : new List<LiveElementBase>(), newTimeline.prediction);
 
+        Console.WriteLine($"Diffs: {diffs.Count}");
+        Console.WriteLine($"PredictionDiffs: {predictionDiff.Count}");
         if (diffs.Count > 0 || predictionDiff.Count > 0) {
             newTimeline.timeline.Add(new GameweekTimelineEntry() {
                 timestamp = timestamp,
