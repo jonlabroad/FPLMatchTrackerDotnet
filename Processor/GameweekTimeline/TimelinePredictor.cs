@@ -75,18 +75,18 @@ public class TimelinePredictor {
         // Goalkeepers and defenders get CS, if playing and eligible
         if (IsMidGkOrDef(element)) {
             var csExplain = GetCS(explain);
-            if (csExplain != null) {
+            if (csExplain == null) {
                 if (minutesExplain != null) {
-                        if (!HasOtherTeamScored(element, fixture)) {
-                            // Player has no CS and is playing... 
-                            var maxMinutes = 93.0 - fixtureMinutes + minutesExplain.value;
-                            if (maxMinutes >= 60.0) {
-                                explain.stats.Add(new ExplainElement() {
-                                    identifier = "clean_sheets",
-                                    value = 1,
-                                    points = element.element_type == 3 ? 1 : 4
-                                });
-                            }
+                    if (!HasOtherTeamScored(element, fixture)) {
+                        // Player has no CS and is playing... 
+                        var maxMinutes = 93.0 - fixtureMinutes + minutesExplain.value;
+                        if (maxMinutes >= 60.0) {
+                            explain.stats.Add(new ExplainElement() {
+                                identifier = "clean_sheets",
+                                value = 1,
+                                points = element.element_type == 3 ? 1 : 4
+                            });
+                        }
                     }
                 }
             }
@@ -102,7 +102,7 @@ public class TimelinePredictor {
     }
 
     private bool HasOtherTeamScored(Footballer element, Fixture fixture) {
-        var fixtureScoreOther = element.team == fixture.team_h ? fixture.team_a : fixture.team_h;
+        var fixtureScoreOther = element.team == fixture.team_h ? fixture.team_a_score : fixture.team_h_score;
         return fixtureScoreOther != 0;
     }
 
