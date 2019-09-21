@@ -147,7 +147,8 @@ public class TimelinePlayerProcessor {
     }
 
     private ExplainElement GetExplainDiff(ExplainElement curr, ExplainElement prev) {
-        if (curr.points == prev.points && curr.value == prev.value) {
+        // Ignore value, only get diff is points have changed
+        if (curr.points == prev.points) {
             return null;
         }
         
