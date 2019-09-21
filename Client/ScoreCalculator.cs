@@ -51,6 +51,16 @@ public class ScoreCalculator
         return score;
     }
 
+    public int calculateFootballerScore(Explain explain)
+    {
+        int score = 0;
+        foreach (var explainElement in explain.stats)
+        {
+            score += explainElement.points;
+        }
+        return score;
+    }
+
     public static void EstimateAverageScore(IDictionary<int, ProcessedTeam> teams)
     {
         ProcessedTeam average = null;

@@ -58,20 +58,6 @@ public class TimelinePredictor {
         var minutesExplain = GetMinutes(explain);
         var element = GetElement(current.id);
         
-        // If fixture hasn't started, use the average
-        if (minutesExplain == null || fixtureMinutes <= 1.0e-6) {
-            var avg = GetAverage(element);
-            explain.stats.Add(avg);
-        }
-
-        // If fixture has started, scale the average based on minutes played is player is in
-        if (fixtureMinutes > 1.0e-6 && minutesExplain != null) {
-            var avg = GetAverage(element);
-            avg.points = (int) Math.Round(avg.points * (1.0 - fixtureMinutes/90.0));
-            explain.stats.Add(avg);
-            avg.value = 0;
-        }
-
         // Goalkeepers and defenders get CS, if playing and eligible
         if (IsMidGkOrDef(element)) {
             var csExplain = GetCS(explain);
@@ -90,7 +76,23 @@ public class TimelinePredictor {
                     }
                 }
             }
-        } 
+        }
+
+        var currentScore = new ScoreCalculator().calculateFootballerScore(explain);
+        var avg = GetAverage(element);
+        
+        // If fixture has started, scale the average based on minutes played is player is in
+        if (fixtureMinutes > 1.0e-6 && minutesExplain != null) {
+            avg.points = (int) Math.Round(avg.points * (1.0 - fixtureMinutes/90.0));
+            avg.value = 0;
+        }
+
+        // Only use average if average is > than the current + potential CS. If using average, only use the difference between avg and current
+        if (avg.points > currentScore) {
+            // If fixture hasn't started, use the average
+            avg.points = avg.points - currentScore;
+            explain.stats.Add(avg);
+        }
     }
 
     private Footballer GetElement(int elementId) {
