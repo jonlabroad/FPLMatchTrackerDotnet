@@ -33,9 +33,11 @@ public class AllProcessorV3
         // TODO make only daily processor
         //await new LeagueStandingsProcessor(_client).process();
 
+/*
         var test = new TimelinePlayerProcessor(_client);
         await test.Process();
         return;
+*/
 
         await (new DailyProcessorV3(_leagueId, _client).Process());
 
