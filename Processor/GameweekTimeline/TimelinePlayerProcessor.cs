@@ -115,7 +115,7 @@ public class TimelinePlayerProcessor {
         };
         for (var i = 0; i < curr.explain.Count; i++) {
             var currFixtureExplain = curr.explain[i];
-            var prevFixtureExplain = prev.explain.Count > i ? prev.explain[i] : null;
+            var prevFixtureExplain = prev != null && prev.explain != null && prev.explain.Count > i ? prev.explain[i] : null;
             var diffExplain = new Explain() {
                 fixture = currFixtureExplain.fixture,
                 stats = new List<ExplainElement>()
@@ -123,7 +123,7 @@ public class TimelinePlayerProcessor {
             diff.explain.Add(diffExplain);
 
             foreach (var currStat in currFixtureExplain.stats) {
-                var prevStat = prevFixtureExplain.stats.FirstOrDefault(s => s.identifier.Equals(currStat.identifier));
+                var prevStat = prevFixtureExplain != null ? prevFixtureExplain.stats.FirstOrDefault(s => s.identifier.Equals(currStat.identifier)) : null;
                 if (prevStat == null) {
                     prevStat = new ExplainElement() {
                         identifier = currStat.identifier
