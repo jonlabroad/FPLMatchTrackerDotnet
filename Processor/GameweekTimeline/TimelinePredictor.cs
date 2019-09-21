@@ -67,7 +67,7 @@ public class TimelinePredictor {
         // If fixture has started, scale the average based on minutes played is player is in
         if (fixtureMinutes > 1.0e-6 && minutesExplain != null) {
             var avg = GetAverage(element);
-            avg.points *= (int) Math.Round(1.0 - fixtureMinutes/90.0);
+            avg.points = (int) Math.Round(avg.points * (1.0 - fixtureMinutes/90.0));
             avg.value = (int) Math.Round(fixtureMinutes);
             explain.stats.Add(avg);
         }
