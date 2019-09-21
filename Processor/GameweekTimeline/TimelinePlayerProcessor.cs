@@ -26,9 +26,9 @@ public class TimelinePlayerProcessor {
         var timestamp = DateTime.Now;
 
         // TEST for now
-/*
+
         var prediction = new List<LiveElementBase>();
-        var predictor = new TimelinePredictor(_client);
+        var predictor = new TimelinePredictor(gw, _client);
         await predictor.Init();
         foreach (var element in bs.elements) {
             // TODO we need to add blank live elements for the upcoming fixtures
@@ -38,11 +38,12 @@ public class TimelinePlayerProcessor {
             prediction.Add(await predictor.Predict(liveElement));
         }
         /////
- */
-        if (diffs.Count > 0) {
+
+        if (diffs.Count > 0 || prediction.Count > 0) {
             newTimeline.timeline.Add(new GameweekTimelineEntry() {
                 timestamp = timestamp,
-                diff = diffs
+                diff = diffs,
+                prediction = prediction
             });
             await WriteTimeline(gw, newTimeline);
         }

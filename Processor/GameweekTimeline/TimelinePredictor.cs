@@ -10,8 +10,9 @@ public class TimelinePredictor {
     private Live _live;
     private List<Fixture> _fixtures;
 
-    public TimelinePredictor(EPLClient client) {
+    public TimelinePredictor(int gameweek, EPLClient client) {
         _client = client;
+        _gameweek = gameweek;
     }
 
     public async Task Init() {
@@ -57,7 +58,7 @@ public class TimelinePredictor {
         var element = GetElement(current.id);
         
         // If fixture hasn't started, use the average
-        if (minutesExplain == null && fixtureMinutes <= 1.0e-6) {
+        if (minutesExplain == null || fixtureMinutes <= 1.0e-6) {
             var avg = GetAverage(element);
             explain.stats.Add(avg);
         }

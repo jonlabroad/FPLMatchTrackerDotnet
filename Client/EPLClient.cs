@@ -57,9 +57,24 @@ public class EPLClient
     }
 
     public async Task<List<Fixture>> GetFixtures(int eventId) {
-            var request = _generator.GenerateFixturesRequest(eventId);
-            var fixtures = await _executor.Execute<List<Fixture>>(request);
-            return fixtures;
+        if (!_footballerCache.fixtures.ContainsKey(eventId))
+        {
+            await _footballerCache.fixturesLock.WaitAsync();
+            if (!_footballerCache.fixtures.ContainsKey(eventId))
+            {
+                var request = _generator.GenerateFixturesRequest(eventId);
+                var response = await _executor.Execute(request);
+                var fixtures = JsonConvert.DeserializeObject<List<Fixture>>(response, new JsonSerializerSettings {
+                        NullValueHandling = NullValueHandling.Ignore
+                });
+
+                if (fixtures != null) {
+                    _footballerCache.fixtures[eventId] = fixtures;
+                }
+            }
+            _footballerCache.fixturesLock.Release();
+        }
+        return _footballerCache.fixtures[eventId];
     }
 
     public async Task<Live> getLiveData(int eventId) {

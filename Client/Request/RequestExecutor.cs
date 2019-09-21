@@ -39,6 +39,10 @@ public class RequestExecutor : IRequestExecutor
             _log.Info(request.Resource);
             await requestLock.WaitAsync();
             var data = await _client.ExecuteTaskAsync<T>(request);
+            if (data.Data == null) {
+                _log.Error(data.ErrorException, "Unable to get data");
+                throw data.ErrorException;
+            }
             requestLock.Release();
             if (_record) {
                 //_recorder.record(request.getUrl(), jsonResponse.getBody());

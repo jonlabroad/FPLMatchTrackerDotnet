@@ -13,12 +13,6 @@ public class Fixture
     
     public bool started{get;set;}
     
-    public int event_day{get;set;}
-    
-    public string deadline_time{get;set;}
-    
-    public string deadline_time_formatted{get;set;}
-    
     public JArray stats {get; set;}
     
     public EventStats parsedStats{get;set;}
@@ -32,12 +26,11 @@ public class Fixture
     public int team_a_score{get;set;}
     
     public bool finished{get;set;}
+    public bool finished_provisional{get;set;}
     
     public int minutes{get;set;}
     
     public bool provisional_start_time{get;set;}
-    
-    public bool finished_provisional{get;set;}
 
     [JsonProperty(PropertyName="event")]
     public int eventId {get;set;}
