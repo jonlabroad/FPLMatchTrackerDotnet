@@ -22,8 +22,13 @@ public class DailyProcessorV3
             return;
         }
 
-        await new LeagueStandingsProcessor(_client).process();
-        await UpdateCloudAppConfig();
+        try {
+            await new LeagueStandingsProcessor(_client).process();
+            await UpdateCloudAppConfig();
+        }
+        catch (Exception ex) {
+            Console.WriteLine(ex);
+        }
 
         //var teamsInLeague = await _client.getTeamsInLeague(_leagueId);
         //var processedPlayers = await new PlayerProcessorV3(_client).process();

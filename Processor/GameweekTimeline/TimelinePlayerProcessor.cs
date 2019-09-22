@@ -115,6 +115,7 @@ public class TimelinePlayerProcessor {
         var diff = new LiveElementBase() {
             id = curr.id
         };
+
         for (var i = 0; i < curr.explain.Count; i++) {
             var currFixtureExplain = curr.explain[i];
             var prevFixtureExplain = prev != null && prev.explain != null && prev.explain.Count > i ? prev.explain[i] : null;

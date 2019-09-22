@@ -104,6 +104,13 @@ public class TimelinePredictor {
                         });
                     }
                 }
+                else {
+                    explain.stats.Add(new ExplainElement() {
+                        identifier = "clean_sheets",
+                        value = 0,
+                        points = 0
+                    });
+                }
             }
         }
 
