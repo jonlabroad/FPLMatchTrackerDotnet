@@ -117,6 +117,13 @@ public class TimelinePlayerProcessor {
         };
 
         for (var i = 0; i < curr.explain.Count; i++) {
+            var allExplainIdentifiers = new HashSet<string>(curr.explain[i].stats.Select(s => s.identifier).ToHashSet());
+            if (prev != null && prev.explain != null && prev.explain.Count > i) {
+                foreach (var stat in prev.explain[i].stats) {
+                    allExplainIdentifiers.Add(stat.identifier);
+                }
+            }
+
             var currFixtureExplain = curr.explain[i];
             var prevFixtureExplain = prev != null && prev.explain != null && prev.explain.Count > i ? prev.explain[i] : null;
             var diffExplain = new Explain() {
@@ -125,11 +132,17 @@ public class TimelinePlayerProcessor {
             };
             diff.explain.Add(diffExplain);
 
-            foreach (var currStat in currFixtureExplain.stats) {
+            foreach (var explainIdentifier in allExplainIdentifiers) {
+                var currStat = currFixtureExplain.stats.FirstOrDefault(e => e.identifier.Equals(explainIdentifier));
                 var prevStat = prevFixtureExplain != null ? prevFixtureExplain.stats.FirstOrDefault(s => s.identifier.Equals(currStat.identifier)) : null;
                 if (prevStat == null) {
                     prevStat = new ExplainElement() {
-                        identifier = currStat.identifier
+                        identifier = explainIdentifier
+                    };
+                }
+                if (currStat == null) {
+                    currStat = new ExplainElement() {
+                        identifier = explainIdentifier
                     };
                 }
                 var statDiff = GetExplainDiff(currStat, prevStat);
