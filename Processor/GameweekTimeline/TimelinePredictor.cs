@@ -22,8 +22,8 @@ public class TimelinePredictor {
         _fixtures = await _client.GetFixtures(_gameweek);
     }
 
-    public async Task<LiveElementBase> Predict(LiveElementBase current) {
-        var prediction = new LiveElementBase(current);
+    public async Task<TimelineLiveElement> Predict(TimelineLiveElement current) {
+        var prediction = new TimelineLiveElement(current);
         foreach (var fixturePrediction in prediction.explain) {
             var fixtureId = fixturePrediction.fixture;
             var fixtures = await _client.GetFixtures(_gameweek);
@@ -45,15 +45,15 @@ public class TimelinePredictor {
                 "High" prediction: 
             */
         }
-
+        prediction.CalcScore();
         return prediction;
     }
 
-    private void MakePrediction(LiveElementBase current, Fixture fixture, Explain explain) {
+    private void MakePrediction(TimelineLiveElement current, Fixture fixture, Explain explain) {
         AddPotential(current, fixture, explain);
     }
 
-    private void AddPotential(LiveElementBase current, Fixture fixture, Explain explain) {
+    private void AddPotential(TimelineLiveElement current, Fixture fixture, Explain explain) {
         var fixtureMinutes = GetEstimatedFixtureMinutes(fixture);
         var minutesExplain = GetMinutes(explain);
         var element = GetElement(current.id);

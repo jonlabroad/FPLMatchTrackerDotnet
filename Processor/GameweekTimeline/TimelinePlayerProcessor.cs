@@ -19,23 +19,22 @@ public class TimelinePlayerProcessor {
         var gw = currEvent.id;
         var currentLive = await _client.getLiveData(gw);
         var previousTimeline = await ReadPreviousTimeline(gw);
-        var newTimeline = new GameweekTimeline(previousTimeline, currentLive.elements.Select(el => new LiveElementBase(el)).ToList());
+        var newTimeline = new GameweekTimeline(previousTimeline, currentLive.elements.Select(el => new TimelineLiveElement(el)).ToList());
 
         // Find and log differences between previous timeline and current live
         var diffs = FindAllPlayerDifferences(previousTimeline, currentLive);
         var timestamp = DateTime.Now;
 
-        var prediction = new List<LiveElementBase>();
+        var prediction = new List<TimelineLiveElement>();
         var predictor = new TimelinePredictor(gw, _client);
         await predictor.Init();
         foreach (var element in bs.elements) {
-            var liveElement = currentLive.elements.FirstOrDefault(e => e.id == element.id) ?? new LiveElementBase() {
-                id = element.id
-            };
+            var liveElementBase = currentLive.elements.FirstOrDefault(e => e.id == element.id);
+            var liveElement = liveElementBase != null ? new TimelineLiveElement(liveElementBase) : new TimelineLiveElement() { id = element.id };
             prediction.Add(await predictor.Predict(liveElement));
         }
         newTimeline.prediction = prediction;
-        var predictionDiff = FindAllPlayerPredictionDifferences(previousTimeline != null ? previousTimeline.prediction : new List<LiveElementBase>(), newTimeline.prediction);
+        var predictionDiff = FindAllPlayerPredictionDifferences(previousTimeline != null ? previousTimeline.prediction : new List<TimelineLiveElement>(), newTimeline.prediction);
 
         Console.WriteLine($"Diffs: {diffs.Count}");
         Console.WriteLine($"PredictionDiffs: {predictionDiff.Count}");
@@ -49,8 +48,8 @@ public class TimelinePlayerProcessor {
         }
     }
 
-    private List<LiveElementBase> FindAllPlayerDifferences(GameweekTimeline prev, Live currLive) {
-        var diffs = new List<LiveElementBase>();
+    private List<TimelineLiveElement> FindAllPlayerDifferences(GameweekTimeline prev, Live currLive) {
+        var diffs = new List<TimelineLiveElement>();
         foreach (LiveElementBase currLiveElement in currLive.elements) {
             var elementId = currLiveElement.id;
             var comparison = currLiveElement;
@@ -62,15 +61,15 @@ public class TimelinePlayerProcessor {
                 comparison = getBaseDiff(currLiveElement);
             }
             if (comparison != null) {
-                diffs.Add(comparison);
+                diffs.Add(new TimelineLiveElement(comparison));
             }
         }
         return diffs;
     }
 
-    private List<LiveElementBase> FindAllPlayerPredictionDifferences(List<LiveElementBase> prev, List<LiveElementBase> curr) {
-        var diffs = new List<LiveElementBase>();
-        foreach (LiveElementBase currLiveElement in curr) {
+    private List<TimelineLiveElement> FindAllPlayerPredictionDifferences(List<TimelineLiveElement> prev, List<TimelineLiveElement> curr) {
+        var diffs = new List<TimelineLiveElement>();
+        foreach (TimelineLiveElement currLiveElement in curr) {
             var elementId = currLiveElement.id;
             var comparison = currLiveElement;
             if (prev != null) {
@@ -87,8 +86,8 @@ public class TimelinePlayerProcessor {
         return diffs;
     }
 
-    private LiveElementBase getBaseDiff(LiveElementBase curr) {
-        var diff = new LiveElementBase() {
+    private TimelineLiveElement getBaseDiff(LiveElementBase curr) {
+        var diff = new TimelineLiveElement() {
             id = curr.id
         };
 
@@ -106,13 +105,13 @@ public class TimelinePlayerProcessor {
                 diffExplain.stats = diffStats;
             }
         }
-        
+        diff.CalcScore();
         var anyStats = diff.explain.Any(ex => ex.stats.Count > 0);
         return anyStats ? diff : null;
     }
 
-    private LiveElementBase Compare(LiveElementBase prev, LiveElementBase curr) {
-        var diff = new LiveElementBase() {
+    private TimelineLiveElement Compare(LiveElementBase prev, LiveElementBase curr) {
+        var diff = new TimelineLiveElement() {
             id = curr.id
         };
 
@@ -154,6 +153,7 @@ public class TimelinePlayerProcessor {
 
         var saveDiff = diff.explain.Any(ex => ex.stats.Count > 0);
         if (saveDiff) {
+            diff.CalcScore();
             return diff;
         }
 

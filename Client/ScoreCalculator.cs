@@ -51,6 +51,16 @@ public class ScoreCalculator
         return score;
     }
 
+    public int calculateFootballerScore(List<Explain> explain)
+    {
+        int score = 0;
+        foreach (var explainElement in explain)
+        {
+            score += calculateFootballerScore(explainElement);
+        }
+        return score;
+    }
+
     public int calculateFootballerScore(Explain explain)
     {
         int score = 0;
