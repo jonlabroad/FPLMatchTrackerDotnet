@@ -11,7 +11,6 @@ public class AllProcessorV3
     EPLClient _client;
     int _leagueId;
     List<Task> _matchProcessingTasks = new List<Task>();
-    IDictionary<string, MatchInfo> _matchInfos = new ConcurrentDictionary<string, MatchInfo>();
     private Logger _log = LogManager.GetCurrentClassLogger();
     public AllProcessorV3(EPLClient client, int leagueId)
     {

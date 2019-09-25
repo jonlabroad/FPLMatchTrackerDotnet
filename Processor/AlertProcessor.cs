@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NLog;
-
+/*
 public class AlertProcessor
 {
     AlertProcessorConfig _config;
@@ -143,3 +143,4 @@ public class AlertProcessor
         }
     }
 }
+ */
