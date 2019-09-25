@@ -118,7 +118,7 @@ public class TimelinePredictor {
         // Get any potential BPS
         if (bonusExplain == null) {
             // Fixture has started, and not completely finished?
-            if (fixture.started && (true || !fixture.finished)) {
+            if (fixture.started && !fixture.finished) {
                 var rank = GetBpsRankInFixture(element, fixture);
                 var points = 0;
                 if (rank == 1) {

@@ -34,7 +34,7 @@ public class AllProcessorV3
 
         await (new DailyProcessorV3(_leagueId, _client).Process());
 
-        if (true || await IsTimeToPoll(_client)) {
+        if (await IsTimeToPoll(_client)) {
             var tasks = new List<Task>();
             _log.Debug("Starting Player Processors");
             var timelineProcessor = new TimelinePlayerProcessor(_client);
