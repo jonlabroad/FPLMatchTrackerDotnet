@@ -56,6 +56,7 @@ public class TimelinePredictor {
     private void AddPotential(TimelineLiveElement current, Fixture fixture, Explain explain) {
         var fixtureMinutes = GetEstimatedFixtureMinutes(fixture);
         var minutesExplain = GetMinutes(explain);
+        var bonusExplain = GetBonus(explain);
         var element = GetElement(current.id);
         
         if (minutesExplain == null) {
@@ -114,6 +115,31 @@ public class TimelinePredictor {
             }
         }
 
+        // Get any potential BPS
+        if (bonusExplain == null) {
+            // Fixture has started, and not completely finished?
+            if (fixture.started && (true || !fixture.finished)) {
+                var rank = GetBpsRankInFixture(element, fixture);
+                var points = 0;
+                if (rank == 1) {
+                    points = 3;
+                }
+                else if (rank == 2) {
+                    points = 2;
+                }
+                else if (rank == 3) {
+                    points = 1;
+                }
+                if (points > 0) {
+                    explain.stats.Add(new ExplainElement() {
+                        identifier = "bonus",
+                        value = points,
+                        points = points
+                    });
+                }
+            }
+        }
+
         var currentScore = new ScoreCalculator().calculateFootballerScore(explain);
         var avg = GetAverage(element);
         
@@ -162,8 +188,24 @@ public class TimelinePredictor {
         return fixtureExplain.stats.FirstOrDefault(e => e.identifier.Equals("clean_sheets"));
     }
 
+    private ExplainElement GetBonus(Explain fixtureExplain) {
+        return fixtureExplain.stats.FirstOrDefault(e => e.identifier.Equals("bonus"));
+    }
+
     private bool IsFixtureInProgress(Fixture fixture) {
         return fixture.started && !fixture.finished_provisional;
+    }
+
+    private int GetBpsRankInFixture(Footballer element, Fixture fixture) {
+        var bpsStats = fixture.stats.FirstOrDefault(s => s.identifier.Equals("bps"));
+        if (bpsStats != null) {
+            var allStatsSorted = new List<HomeAwayStatElement>();
+            allStatsSorted.AddRange(bpsStats.a);
+            allStatsSorted.AddRange(bpsStats.h);
+            allStatsSorted.Sort(new BpsComparer());
+            return allStatsSorted.FindIndex(s => s.element == element.id) + 1;
+        }
+        return 0;
     }
 
     private double GetEstimatedFixtureMinutes(Fixture fixture) {
@@ -192,5 +234,13 @@ public class TimelinePredictor {
         else {
             return (45 + (span.TotalMinutes - (60 + estimatedStoppage)));
         }
+    }
+}
+
+public class BpsComparer : Comparer<HomeAwayStatElement>
+{
+    public override int Compare(HomeAwayStatElement x, HomeAwayStatElement y)
+    {
+        return y.value - x.value;
     }
 }

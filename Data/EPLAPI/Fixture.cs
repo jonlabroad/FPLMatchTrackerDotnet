@@ -13,7 +13,7 @@ public class Fixture
     
     public bool started{get;set;}
     
-    public JArray stats {get; set;}
+    public List<HomeAwayStats> stats {get; set;}
     
     public EventStats parsedStats{get;set;}
     
@@ -38,32 +38,4 @@ public class Fixture
     public int team_a{get;set;}
     
     public int team_h{get;set;}
-
-    public EventStats getStats()
-    {
-        EventStats parsedStats = new EventStats();
-        for (int i = 0; i < stats.Count; i++) {
-            var statObject = (JObject) stats[i] as JObject;
-            foreach (var prop in statObject.Properties())
-            {
-                var statName = prop.Name;
-                var stat = prop.Value;
-                var parsedExplain = JsonConvert.DeserializeObject<HomeAwayStats>(stat.ToString(), new JsonSerializerSettings {
-                                                            NullValueHandling = NullValueHandling.Ignore
-                                                        });
-                setField(parsedStats, statName, parsedExplain);
-            }
-        }
-        return parsedStats;
-    }
-
-    private void setField(EventStats element, String fieldName, HomeAwayStats explain)
-    {
-        try {
-            var field = typeof(EventStats).GetProperty(fieldName);
-            field.SetValue(element, explain);
-        } catch (Exception e) {
-            _log.Error(e);
-        }
-    }
 }

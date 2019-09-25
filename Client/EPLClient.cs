@@ -97,9 +97,6 @@ public class EPLClient
         var live = JsonConvert.DeserializeObject<Live>(liveString, new JsonSerializerSettings {
                                                             NullValueHandling = NullValueHandling.Ignore
                                                         });
-        foreach (var fixture in live.fixtures) {
-            fixture.parsedStats = fixture.getStats();
-        }
         return live;
     }
 
