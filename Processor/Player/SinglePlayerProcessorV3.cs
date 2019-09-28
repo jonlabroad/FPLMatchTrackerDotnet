@@ -32,9 +32,6 @@ public class SinglePlayerProcessorV3
         ProcessedPlayer currentPlayerData = new ProcessedPlayer(_footballer, _currentExplains, _previousData);
         determineFixtureStatus(currentPlayerData);
         var prevElements = _previousData != null && _previousData.rawData != null ?_previousData.rawData.explain : new List<FootballerScoreDetailElement>();
-        if (_previousData != null && _previousData.rawData.footballer.web_name.Equals("Salah")) {
-            Console.WriteLine("hi");
-        }
         List<FootballerScoreDetailElement> currExplains = _currentExplains;
         for (var i=0; i<currExplains.Count; i++) {
             FootballerScoreDetailElement prevExplain = i < prevElements.Count ? prevElements[i] : null;
