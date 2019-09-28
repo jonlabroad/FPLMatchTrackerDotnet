@@ -133,7 +133,7 @@ public class TimelinePlayerProcessor {
 
             foreach (var explainIdentifier in allExplainIdentifiers) {
                 var currStat = currFixtureExplain.stats.FirstOrDefault(e => e.identifier.Equals(explainIdentifier));
-                var prevStat = prevFixtureExplain != null ? prevFixtureExplain.stats.FirstOrDefault(s => s.identifier.Equals(currStat.identifier)) : null;
+                var prevStat = prevFixtureExplain != null && currStat != null ? prevFixtureExplain.stats.FirstOrDefault(s => s.identifier.Equals(currStat.identifier)) : null;
                 if (prevStat == null) {
                     prevStat = new ExplainElement() {
                         identifier = explainIdentifier
