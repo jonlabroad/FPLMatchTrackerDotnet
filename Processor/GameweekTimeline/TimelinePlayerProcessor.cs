@@ -61,7 +61,7 @@ public class TimelinePlayerProcessor {
                 comparison = getBaseDiff(currLiveElement);
             }
             if (comparison != null) {
-                diffs.Add(new TimelineLiveElement(comparison));
+                diffs.Add(new TimelineLiveElement(currLiveElement));
             }
         }
         return diffs;
