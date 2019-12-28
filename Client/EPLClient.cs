@@ -267,14 +267,14 @@ public class EPLClient
         return matchesInfo.matches[gameweek];
     }
 
-    public async Task<ICollection<Match>> getCupMatches(int teamId) {
+    public async Task<Cup> getCupMatches(int teamId) {
         var entry = await getEntry(teamId);
-        return entry?.leagues?.cup ?? new List<Match>();
+        return entry?.leagues?.cup ?? new Cup();
     }
 
     public async Task<Match> findCupMatch(int teamId, int gameweek) {
-        var matches = await getCupMatches(teamId);
-        return matches.FirstOrDefault(m => m.eventId == gameweek);
+        var cup = await getCupMatches(teamId);
+        return cup.matches.FirstOrDefault(m => m.eventId == gameweek);
     }
 
     public async Task<Match> findMatch(int leagueId, int teamId, int gameweek) {
