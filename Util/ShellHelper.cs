@@ -9,7 +9,7 @@ public static class ShellHelper
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName = "python",
+                    FileName = "python3",
                     Arguments = $"{script}",
                     RedirectStandardOutput = true,
                     UseShellExecute = false,
